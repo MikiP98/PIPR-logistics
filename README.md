@@ -23,3 +23,45 @@ Program powinien umożliwiać:
 # Project logistics
 
 ## Package manager: UV
+
+---
+
+
+# Database:
+
+## Tables:
+
+### Warehouses:
+
+- id
+- capacity
+- reserved_capacity
+
+### Connections:
+
+- source_warehouse_id
+- target_warehouse_id
+- transportation_time: 
+- two_way: bool
+
+### Products:
+
+- id
+- name
+- barcode
+- mass
+
+<br>
+
+### Stock:
+
+- entry_id
+- product_id
+- warehouse_id
+- count
+
+### Transports:
+
+- source_warehouse_id
+- target_warehouse_id
+- star_timestamp
