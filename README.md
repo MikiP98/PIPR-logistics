@@ -21,3 +21,5 @@ Program powinien umożliwiać:
 
 
 # Project logistics
+
+## Package manager: UV
