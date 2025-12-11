@@ -39,9 +39,11 @@ Program powinien umożliwiać:
 
 ### Connections:
 
+Existing 'connections'/'transport routes' between warehouses.
+
 - source_warehouse_id
 - target_warehouse_id
-- transportation_time: 
+- transportation_time: minutes
 - two_way: bool
 
 ### Products:
@@ -62,6 +64,29 @@ Program powinien umożliwiać:
 
 ### Transports:
 
+Transports between distant warehouses.
+
+- id
 - source_warehouse_id
 - target_warehouse_id
-- star_timestamp
+
+### Transport routes:
+
+*Atomic Transport components.  
+Connects only neighbouring warehouses.*
+
+- id
+- transport_id
+- source_warehouse_id
+- target_warehouse_id
+- start_timestamp: datetime
+- arrival_timestamp: datetime | null
+
+### Transported stock:
+
+*Contents of the Transport "truck(s)"*
+
+- entry_id
+- transport_id
+- product_id
+- count
