@@ -90,3 +90,75 @@ Connects only neighbouring warehouses.*
 - transport_id
 - product_id
 - count
+
+---
+
+
+## Code:
+
+### GUI: Interactive Terminal
+
+*Using `simple-term-menu` library*
+
+#### Data retrieval tasks:
+
+- show warehouses
+- show warehouse details {id}:
+  - capacity:
+    - max capacity
+    - filled capacity
+    - reserved capacity
+    - free capacity
+  - stock
+  - awaiting transports
+- show active transports
+- show transport details {id}:
+  - stat timestamp
+  - destination arrival time estimation
+  - past stops, predicted stops/next destination
+  - progress to the next destination
+  - total progress
+- show finished transports
+- show transport routes
+- show products
+
+#### Data manipulation tasks:
+
+- add stock
+- add warehouse
+- add product
+- add transport route
+- initialise transport <sup>(will make a reservation automatically)</sup>
+- remove stock
+- remove warehouse
+- remove product
+- remove transport route
+- edit warehouse
+- edit product
+- edit route
+- cancel transport <sup>(will create new transport back to start from the closest stop)</sup>
+
+#### Debug/simulation tasks:
+
+- time scale <sup>(time passed multiplayer)</sup>
+- time offset
+
+#### Setup tasks:
+
+- setup:
+  - create config file for db connection
+  - set up the db
+- edit db connection config
+
+
+### DTO:
+
+All classes will be frozen dataclasses with slots.  
+To manage input data validation, separate builder/generator classes can be present.
+
+
+### Pipline:
+
+**2 async loops:**
+1. Event/time/clock loop for Transport progression
+2. User input loop
