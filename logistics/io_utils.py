@@ -55,7 +55,7 @@ def ask_for_string(question: str) -> str:
 def ask_for_choice(options: list[str], question: str = "What would you like to do?") -> int:
     condition = lambda user_input: (
             user_input.lower() in options_lower
-            or (user_input.isnumeric() and int(user_input) in list(range(len(options))))
+            or (user_input.isnumeric() and len(options) > int(user_input) > 0)
     )
     options_lower = [o.lower() for o in options]
     user_input = ""
