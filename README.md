@@ -96,7 +96,7 @@ Connects only neighbouring warehouses.*
 
 ## Code:
 
-### GUI: Interactive Terminal
+### User Interface: TUI
 
 *Using `simple-term-menu` library*
 
