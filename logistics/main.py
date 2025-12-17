@@ -1,10 +1,8 @@
 # coding=utf-8
 import os
-import threading
 
-from logistics.io_utils import ask_for_bool, log, warn
+from logistics.io_utils import ask_for_bool, warn
 from logistics.database.setup import try_setup_new_database
-from pipeline_loops import console_loop, event_loop
 from pipeline_loops.manager import start_pipeline_loops
 
 
