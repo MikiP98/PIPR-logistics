@@ -1,0 +1,2 @@
+select = ["ALL"]
+line-length = 120
