@@ -7,7 +7,7 @@ from pathlib import Path
 from logistics.pipeline_loops.virtual_clock import VirtualClock
 
 
-def run_event_loop(db_path: Path, clock: VirtualClock):
+def run_event_loop(db_path: Path, clock: VirtualClock) -> None:
     conn = sqlite3.connect(db_path, timeout=10)
     cursor = conn.cursor()
 
