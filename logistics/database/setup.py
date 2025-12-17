@@ -3,12 +3,11 @@ import os
 import sqlite3
 from dataclasses import dataclass, field
 from enum import StrEnum
-
 from importlib import resources as impresources
 from pathlib import Path
 
-from logistics.io_utils import ask_for_bool, ask_for_choice, ask_for_string, log, error
 from logistics import database
+from logistics.io_utils import ask_for_bool, ask_for_choice, ask_for_string, error, log
 
 
 # TODO: Move this somewhere else
@@ -135,7 +134,7 @@ def setup_new_database(db_path: Path) -> None:
         log("Database initialized successfully.")
     except sqlite3.Error as e:
         error(f"An error occurred: {e}")
-        raise e
+        raise
     finally:
         conn.close()
 
@@ -178,16 +177,16 @@ def try_setup_new_database(path: str = "./", db_name: str = "humble_logistics.sq
         selection = ask_for_choice(options)
         if selection == 0:
             return try_setup_with_new_db_path(db_name)
-        elif selection == 1:
-            return try_setup_with_new_db_path(path)
-        elif selection == 2:
+        if selection == 1:
+            return try_setup_with_new_db_filename(path)
+        if selection == 2:
             os.remove(full_path)
             return try_setup_with_new_db_path(path)
         else:
             return False
 
     # TODO
-    raise DatabaseStateNotHandledError()
+    raise DatabaseStateNotHandledError
 
 
 class DatabaseStateNotHandledError(NotImplementedError):
@@ -202,7 +201,7 @@ def try_setup_with_new_db_path(db_name: str) -> bool:
 
 def try_setup_with_new_db_filename(path: str) -> bool:
     name = ask_for_string("Please provide a new DB filename")
-    return try_setup_new_database(name, path)
+    return try_setup_new_database(path, name)
 
 
 if __name__ == "__main__":
