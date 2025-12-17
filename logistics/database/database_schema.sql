@@ -1,4 +1,4 @@
-PRAGMA schema.journal_mode = WAL;
+PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON; -- Enable FK enforcement
 
 -- 1. Warehouses (Implied by your schema, but necessary for FKs)
