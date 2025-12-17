@@ -100,7 +100,7 @@ def get_db_status(db_path: Path) -> DBStatus:
     if not status.file_readable:
         return status
 
-        # --- 4. Check SQLite Internal Structure ---
+    # --- 4. Check SQLite Internal Structure ---
     try:
         # Use Read-Only mode to be safe
         with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as conn:
@@ -138,7 +138,9 @@ def setup_new_database(db_path: Path) -> None:
         conn.close()
 
 
-def try_setup_new_database(path: str = "./", db_name: str = "humble_logistics.sqlite") -> bool:
+def try_setup_new_database(
+        path: str = "./", db_name: str = "humble_logistics.sqlite"
+) -> tuple[bool, tuple[str, str] | None]:
     full_path = Path(path) / db_name
 
     log(f"🔍 Inspecting database at: {full_path}")
@@ -155,12 +157,12 @@ def try_setup_new_database(path: str = "./", db_name: str = "humble_logistics.sq
         if change_input_path:
             return try_setup_with_new_db_path(db_name)
         else:
-            return False
+            return False, None
 
     # If the database does not exist, create it
     if not status.exists:
         setup_new_database(full_path)
-        return True
+        return True, (path, db_name)
 
     # From now on the database file does exist
 
@@ -182,7 +184,7 @@ def try_setup_new_database(path: str = "./", db_name: str = "humble_logistics.sq
             os.remove(full_path)
             return try_setup_with_new_db_path(path)
         else:
-            return False
+            return False, None
 
     # TODO
     raise DatabaseStateNotHandledError
@@ -193,12 +195,12 @@ class DatabaseStateNotHandledError(NotImplementedError):
         super().__init__("The database state you we encountered is not handled yet.")
 
 
-def try_setup_with_new_db_path(db_name: str) -> bool:
+def try_setup_with_new_db_path(db_name: str) -> tuple[bool, tuple[str, str] | None]:
     path = ask_for_string("Please provide a new DB path")
     return try_setup_new_database(path, db_name)
 
 
-def try_setup_with_new_db_filename(path: str) -> bool:
+def try_setup_with_new_db_filename(path: str) -> tuple[bool, tuple[str, str] | None]:
     name = ask_for_string("Please provide a new DB filename")
     return try_setup_new_database(path, name)
 
