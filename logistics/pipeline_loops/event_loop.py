@@ -4,10 +4,10 @@ import sqlite3
 import time
 from pathlib import Path
 
-from logistics.pipeline_loops.manager import clock
+from logistics.pipeline_loops.virtual_clock import VirtualClock
 
 
-def run_event_loop(db_path: Path):
+def run_event_loop(db_path: Path, clock: VirtualClock):
     conn = sqlite3.connect(db_path, timeout=10)
     cursor = conn.cursor()
 
