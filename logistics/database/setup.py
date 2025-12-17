@@ -1,5 +1,5 @@
 # coding=utf-8
-import os.path
+import os
 import sqlite3
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -138,8 +138,6 @@ def setup_new_database(db_path: Path) -> None:
         raise e
     finally:
         conn.close()
-
-    raise NotImplemented()
 
 
 def try_setup_new_database(path: str = "./", db_name: str = "humble_logistics.sqlite") -> bool:
