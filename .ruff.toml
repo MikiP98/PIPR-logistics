@@ -1,2 +1,43 @@
-select = ["ALL"]
+# 1. Global Settings
+# ------------------
 line-length = 120
+target-version = "py312"
+
+
+# 2. Linter Rules
+# ---------------
+[lint]
+#select = ["ALL"]
+select = [
+    "E",    # pycodestyle errors (standard flake8)
+    "F",    # Pyflakes (standard flake8)
+    "W",    # pycodestyle warnings
+    "B",    # flake8-bugbear (finds actual bugs and best practices - HIGHLY recommended)
+    "I",    # isort (imports sorting)
+    "UP",   # pyupgrade (upgrades syntax, e.g. "Set()" -> "{}")
+    "N",    # pep8-naming (enforces naming conventions)
+    "SIM",  # flake8-simplify (suggests simpler code structures)
+
+    "A",     # flake8-builtins (Don't shadow 'id' or 'list')
+    "C4",    # flake8-comprehensions (Better list/set/dict code)
+    "PT",    # flake8-pytest-style (Best practices for pytest)
+    "RUF",   # Ruff specific rules
+#    "T20",   # flake8-print (Catch print statements)
+
+    "ANN",   # flake8-annotations (Enforce type hints everywhere)
+]
+ignore = [
+    # --- Type Hinting Ignores ---
+    "ANN101", # Missing type annotation for 'self' (It's inferred)
+    "ANN102", # Missing type annotation for 'cls' (It's inferred)
+    "ANN204", # Missing return type annotation for special method
+]
+
+
+# 3. Per-File Ignores
+# -------------------
+[lint.per-file-ignores]
+# Ignore "Use of assert detected" (S101) specifically in test files.
+# Ignore "Missing return type annotation for public function" (ANN201) specifically in test files.
+"tests/*" = ["S101", "ANN201"]
+"**/test_*.py" = ["S101", "ANN201"]
