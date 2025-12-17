@@ -1,4 +1,3 @@
-# coding=utf-8
 import threading
 
 from logistics.io_utils import log

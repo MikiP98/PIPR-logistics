@@ -1,4 +1,3 @@
-# coding=utf-8
 _RED = "\033[91m"
 _YELLOW = "\033[93m"
 

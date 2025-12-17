@@ -1,4 +1,3 @@
-# coding=utf-8
 from importlib import resources as impresources
 
 from logistics import database
