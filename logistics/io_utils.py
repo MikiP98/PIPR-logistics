@@ -7,8 +7,8 @@ _ITALIC = "\033[3m"
 _RESET = "\033[0m"
 
 
-_FALSE_INPUT_VALUES = frozenset(('0', 'nie', 'no', 'false'))
-_TRUE_INPUT_VALUES = frozenset(('1', 'tak', 'yes', 'true'))
+_FALSE_INPUT_VALUES = frozenset(('0', 'nie', 'no', 'n', 'false', 'f'))
+_TRUE_INPUT_VALUES = frozenset(('1', 'tak', 'yes', 'y', 'true', 't'))
 _BOOL_INPUT_VALUES = _FALSE_INPUT_VALUES.union(_TRUE_INPUT_VALUES)
 
 
@@ -53,19 +53,20 @@ def ask_for_string(question: str) -> str:
 
 
 def ask_for_choice(options: list[str], question: str = "What would you like to do?") -> int:
-    condition = lambda user_input: (
+    def validade_input(user_input):
+        return (
             user_input.lower() in options_lower
             or (user_input.isnumeric() and len(options) > int(user_input) > 0)
-    )
+        )
     options_lower = [o.lower() for o in options]
     user_input = ""
-    while not condition(user_input):
+    while not validade_input(user_input):
         print(question)
         for i, o in enumerate(options):
             print(f"{i}. {o}")
         print()
         user_input = get_input()
-        if not condition(user_input):
+        if not validade_input(user_input):
             invalid_input()
     if user_input.lower() in options_lower:
         user_input = options_lower.index(user_input.lower())
