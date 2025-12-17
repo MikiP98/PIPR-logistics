@@ -1,9 +1,10 @@
 # coding=utf-8
 import os
+from pathlib import Path
 
 from logistics.io_utils import ask_for_bool, warn
 from logistics.database.setup import try_setup_new_database
-from pipeline_loops.manager import start_pipeline_loops
+from logistics.pipeline_loops.manager import start_pipeline_loops
 
 
 def main() -> None:
@@ -37,7 +38,7 @@ def main() -> None:
             return
 
     # Start the pipeline loops
-    start_pipeline_loops()
+    start_pipeline_loops(Path(database_location) / database_filename)
 
 
 if __name__ == '__main__':
