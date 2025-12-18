@@ -28,8 +28,6 @@ select = [
 ]
 ignore = [
     # --- Type Hinting Ignores ---
-    "ANN101", # Missing type annotation for 'self' (It's inferred)
-    "ANN102", # Missing type annotation for 'cls' (It's inferred)
     "ANN204", # Missing return type annotation for special method
 ]
 
