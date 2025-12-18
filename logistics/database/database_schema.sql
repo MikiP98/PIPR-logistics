@@ -3,7 +3,7 @@ PRAGMA foreign_keys = ON; -- Enable FK enforcement
 
 -- 1. Warehouses (Implied by your schema, but necessary for FKs)
 CREATE TABLE warehouses (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     location TEXT NOT NULL,
     capacity_volume_cm INTEGER NOT NULL,
@@ -24,7 +24,7 @@ CREATE TABLE connections (
 
 -- 3. Products
 CREATE TABLE products (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     barcode TEXT NOT NULL,
     -- mass INTEGER NOT NULL,
@@ -33,18 +33,18 @@ CREATE TABLE products (
 
 -- 4. Stock
 CREATE TABLE stock (
-    entry_id INTEGER PRIMARY KEY,
     product_id INTEGER NOT NULL,
     warehouse_id INTEGER NOT NULL,
     count INTEGER NOT NULL DEFAULT 0,
 
+    PRIMARY KEY (product_id, warehouse_id),
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(id)
 ) STRICT;
 
 -- 5. Transports
 CREATE TABLE transports (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     source_warehouse_id INTEGER NOT NULL,
     target_warehouse_id INTEGER NOT NULL,
 
@@ -54,7 +54,7 @@ CREATE TABLE transports (
 
 -- 6. Transport Routes
 CREATE TABLE transport_routes (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     transport_id INTEGER NOT NULL,
     source_warehouse_id INTEGER NOT NULL,
     target_warehouse_id INTEGER NOT NULL,
@@ -68,11 +68,11 @@ CREATE TABLE transport_routes (
 
 -- 7. Transported Stock
 CREATE TABLE transported_stock (
-    entry_id INTEGER PRIMARY KEY,
     transport_id INTEGER NOT NULL,
     product_id INTEGER NOT NULL,
     count INTEGER NOT NULL,
 
+    PRIMARY KEY (transport_id, product_id),
     FOREIGN KEY (transport_id) REFERENCES transports(id),
     FOREIGN KEY (product_id) REFERENCES products(id)
 ) STRICT;
