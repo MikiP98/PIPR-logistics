@@ -9,12 +9,12 @@ target-version = "py312"
 [lint]
 #select = ["ALL"]
 select = [
-    "E",    # pycodestyle errors (standard flake8)
-    "F",    # Pyflakes (standard flake8)
+    "E",    # pycodestyle errors (standard flake8 rules)
+    "F",    # Pyflakes (standard flake8 rules)
     "W",    # pycodestyle warnings
-    "B",    # flake8-bugbear (finds actual bugs and best practices - HIGHLY recommended)
+    "B",    # flake8-bugbear (finds likely bugs and design problems)
     "I",    # isort (imports sorting)
-    "UP",   # pyupgrade (upgrades syntax, e.g. "Set()" -> "{}")
+    "UP",   # pyupgrade (modernizes old Python syntax)
     "N",    # pep8-naming (enforces naming conventions)
     "SIM",  # flake8-simplify (suggests simpler code structures)
 
@@ -25,6 +25,11 @@ select = [
 #    "T20",   # flake8-print (Catch print statements)
 
     "ANN",   # flake8-annotations (Enforce type hints everywhere)
+
+    "C90",  # mccabe (Complexity checker)
+    "S",    # flake8-bandit (Security checks)
+
+    "DTZ",  # flake8-datetimez (Prevents "naive" timezone bugs)
 ]
 ignore = [
     # --- Type Hinting Ignores ---
