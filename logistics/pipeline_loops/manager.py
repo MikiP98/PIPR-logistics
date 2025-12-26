@@ -1,11 +1,12 @@
 import threading
+from pathlib import Path
 
 from logistics.io_utils import log
 from logistics.pipeline_loops import console_loop, event_loop
 from logistics.pipeline_loops.virtual_clock import VirtualClock
 
 
-def start_pipeline_loops(db_path: str) -> None:
+def start_pipeline_loops(db_path: Path) -> None:
     clock = VirtualClock()
 
     log("Starting event loop")
