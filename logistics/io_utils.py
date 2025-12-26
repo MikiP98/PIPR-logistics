@@ -341,6 +341,67 @@ def error(msg: str) -> None:
     print(f"{_RED}{msg}{_RESET}")
 
 
+def print_table(values: list[Sequence[Any]], headers: tuple[str, ...] | None = None) -> None:
+    if len(values) == 0:
+        _print_empty_table(headers)
+        return
+
+    if headers is not None and len(headers) != len(values[0]):
+        raise ValueError("The number of columns does not match the number of headers")
+
+    string_rows: list[list[str]] = []
+    for row in values:
+        string_row = []
+        for value in row:
+            string_row.append(str(value))
+        string_rows.append(string_row)
+
+    column_max_lengths = _get_column_widths(string_rows, headers)
+
+    rows: list[Sequence[str]] = []
+
+    if headers is not None:
+        rows.append(headers)
+        rows.append(tuple('-' * max_length for max_length in column_max_lengths))
+
+    rows.extend(string_rows)
+
+    for row in rows:
+        log(_get_table_row(row, column_max_lengths))
+
+
+def _get_column_widths(rows: list[Sequence[str]], headers: Sequence[str] | None) -> list[int]:
+    column_max_lengths = [0] * len(rows[0])
+
+    if headers is not None:
+        for i in range(len(headers)):
+            column_max_lengths[i] = max(column_max_lengths[i], len(headers[i]))
+
+    for i in range(len(rows)):
+        for j in range(len(rows[i])):
+            column_max_lengths[j] = max(column_max_lengths[j], len(rows[i][j]))
+
+    return column_max_lengths
+
+
+def _print_empty_table(headers: tuple[str, ...] | None) -> None:
+    """Helper to handle the empty table logic."""
+    if headers is None:
+        warn("Empty table")
+    else:
+        log("  |  ".join(headers))
+        log("  |  ".join('-' * len(h) for h in headers))
+
+
+def _get_table_row(row: Sequence[str], column_max_lengths: Sequence[int]) -> str:
+    line = [row[0], ' ' * (column_max_lengths[0] - len(row[0]))]
+    for i in range(1, len(row)):
+        line.append('  |  ')
+        line.append(row[i])
+        line.append(' ' * (column_max_lengths[i] - len(row[i])))
+    return ''.join(line)
+
+
 if __name__ == '__main__':
     # log("Testing...")
     # print()

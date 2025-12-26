@@ -12,6 +12,10 @@ from logistics.io_utils import (
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_warehouses_task,
 )
+from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
+    show_warehouse_details,
+    show_warehouses_task,
+)
 from logistics.pipeline_loops.virtual_clock import VirtualClock
 
 
@@ -65,6 +69,10 @@ class ConfigTasks(TaskEnum):
 
 
 COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Callable[[VirtualClock], Any]] = {
+    # DataRetrivalTasks
+    DataRetrivalTasks.SHOW_WAREHOUSES: show_warehouses_task,
+    DataRetrivalTasks.SHOW_WAREHOUSE_DETAILS: show_warehouse_details,
+
     # DataManipulationTasks
     DataManipulationTasks.ADD_WAREHOUSE: add_warehouses_task,
 }
