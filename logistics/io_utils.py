@@ -1,3 +1,6 @@
+from collections.abc import Sequence
+from typing import Any
+
 _RED = "\033[91m"
 _YELLOW = "\033[93m"
 
@@ -15,7 +18,7 @@ def ask_for_bool(question: str) -> bool:
     user_input = ""
     while user_input not in _BOOL_INPUT_VALUES:
         print(question)
-        user_input = get_input("y/n").lower()
+        user_input = get_input(tip="y/n").lower()
         if user_input not in _BOOL_INPUT_VALUES:
             invalid_input()
     return user_input in _TRUE_INPUT_VALUES
@@ -24,6 +27,100 @@ def ask_for_bool(question: str) -> bool:
 def ask_for_string(question: str) -> str:
     print(question)
     return get_input()
+
+
+def ask_for_int(
+        question: str, *, minimum: int | None = 0, maximum: int | None = None, allow_none: bool = False
+) -> int | None:
+    if minimum is not None and maximum is not None and minimum >= maximum:
+        raise ValueError("minimum has to be smaller than maximum")
+
+    def validate_input(value: str) -> bool:
+        return (
+                (value.isnumeric()
+                and (minimum is None or (minimum is not None and int(value) >= minimum))
+                and (maximum is None or (maximum is not None and int(value) <= maximum)))
+                or (allow_none and value == "")
+        )
+
+    user_input = ""
+    while not validate_input(user_input):
+        print(question)
+        user_input = get_input().strip().replace(' ', '').replace(' ', '').replace('_', '')
+        if not user_input.isnumeric():
+            invalid_input()
+        elif maximum is not None and int(user_input) > maximum:
+            error(f"Exceeded max INTEGER size limit of '{maximum}'")
+        elif minimum is not None and int(user_input) < minimum:
+            error(f"Exceeded min INTEGER size limit of '{minimum}'")
+
+    if user_input == "":
+        return None
+    else:
+        return int(user_input)
+
+
+def ask_for_float(question: str, *, minimum: float | None = 0, maximum: float | None = None) -> float:
+    if minimum is not None and maximum is not None and minimum >= maximum:
+        raise ValueError("minimum has to be smaller than maximum")
+
+    def validate_input(value: str) -> bool:
+        return (
+            value.replace('.', '').replace(',', '').isnumeric()
+            and (minimum is None or (minimum is not None and float(value) >= minimum))
+            and (maximum is None or (maximum is not None and float(value) <= maximum))
+        )
+
+    user_input = ""
+    while not validate_input(user_input):
+        print(question)
+        user_input = get_input().strip().replace(' ', '').replace(' ', '').replace('_', '')
+        if not validate_input(user_input):
+            invalid_input()
+            # TODO: Improve the user feedback
+    return float(user_input)
+
+
+def ask_for_time(question: str) -> tuple[int, int, int, int, int]:
+    # format -> ww:dd:hh:mm:ss
+
+    def validate_input(value: str) -> bool:
+        parts = value.split(':')
+        return len(parts) <= 5 and all(part.isnumeric() for part in parts)
+
+    user_input = ""
+    while not validate_input(user_input):
+        print(question)
+        user_input = get_input(tip="ww:dd:hh:mm:ss").strip().replace(' ', '').replace(' ', '').replace('_', '')
+        if not validate_input(user_input):
+            invalid_input()
+            # TODO: Improve the user feedback
+
+    parts = user_input.split(':')
+    offset = 5 - len(parts)
+    weeks = int(parts[0]) if len(parts) == 5 else 0
+    days = int(parts[1 - offset]) if len(parts) >= 4 else 0
+    hours = int(parts[2 - offset]) if len(parts) >= 3 else 0
+    minutes = int(parts[3 - offset]) if len(parts) >= 2 else 0
+    seconds = int(parts[4 - offset])
+
+    if seconds // 60 != 0:
+        minutes += seconds // 60
+        seconds %= 60
+
+    if minutes // 60 != 0:
+        hours += minutes // 60
+        minutes %= 60
+
+    if hours // 24 != 0:
+        days += hours // 24
+        hours %= 24
+
+    if days // 7 != 0:
+        weeks += days // 7
+        days %= 7
+
+    return weeks, days, hours, minutes, seconds
 
 
 # def ask_for_choice(question: str, options: list[str]) -> int:
@@ -51,34 +148,185 @@ def ask_for_string(question: str) -> str:
 #     return options.index(answer)
 
 
-def ask_for_choice(options: list[str], question: str = "What would you like to do?") -> int:
-    def validade_input(user_input):
-        return (
-            user_input.lower() in options_lower
-            or (user_input.isnumeric() and len(options) > int(user_input) > 0)
-        )
-    options_lower = [o.lower() for o in options]
+def ask_for_choice(
+        options: list[str] | list[list[str]],
+        question: str = "What would you like to do?",
+        *,
+        headers: bool = False
+) -> int:
+    if not options:
+        raise ValueError("You must provide at least one option.")  # TODO: Make custom error
+
+    # Check type of first element to decide strategy
+    if isinstance(options[0], list):
+        return _ask_column_choice(options, question, headers)
+    else:
+        return _ask_simple_choice(options, question, headers)
+
+
+def _ask_simple_choice(options: list[str], question: str, headers: bool) -> int:
+    header = None
+    if headers:
+        header = options.pop(0)
+    valid_options = [o for o in options if o is not None]
+    options_lower = [o.lower() for o in valid_options]
+
+    def validate_input(value: str) -> bool:
+        # Allow string match OR numeric index within bounds
+        if value.lower() in options_lower:
+            return True
+        if value.isnumeric():
+            idx = int(value)
+            return 0 <= idx < len(options)
+        return False
+
     user_input = ""
-    while not validade_input(user_input):
+    while not validate_input(user_input):
         print(question)
-        for i, o in enumerate(options):
-            print(f"{i}. {o}")
+        if header is not None:
+            print(header)
+            print('-'*max([len(o) for o in options if o is not None]))
+        i = 0
+        for o in options:
+            if o is not None:
+                print(f"{i}. {o}")
+                i += 1
+            else:
+                print()
         print()
+
         user_input = get_input()
-        if not validade_input(user_input):
+        if not validate_input(user_input):
             invalid_input()
-    if user_input.lower() in options_lower:
-        user_input = options_lower.index(user_input.lower())
-    return user_input
+
+    # Return index
+    if user_input.isnumeric():
+        return int(user_input)
+    return options_lower.index(user_input.lower())
+
+
+def _ask_column_choice(option_groups: list[list[str]], question: str, use_headers: bool) -> int:
+    divider: str = "|"
+    padding: int = 2
+
+    if use_headers:
+        # Take the first element of each list as header
+        # Treat None as empty string for header
+        headers = [str(col[0]).upper() if col and col[0] is not None else "" for col in option_groups]
+        # Data is everything after the first element
+        data_groups = [col[1:] if len(col) > 1 else [] for col in option_groups]
+    else:
+        headers = []
+        data_groups = option_groups
+
+    # Flatten the list for easy validation and index lookup
+    flat_valid_options = [item for sublist in data_groups for item in sublist if item is not None]
+    flat_valid_options_lower = [o.lower() for o in flat_valid_options]
+
+    def validate_input(user_input: str) -> bool:
+        if user_input.lower() in flat_valid_options_lower:
+            return True
+        if user_input.isnumeric():
+            idx = int(user_input)
+            return 0 <= idx < len(flat_valid_options)
+        return False
+
+    # 3. Pre-calculate the display strings for Data
+    display_grid = []
+    current_idx = 0
+    for col in data_groups:
+        display_col = []
+        for item in col:
+            if item is None:
+                display_col.append("")
+            else:
+                display_col.append(f"{current_idx}. {item}")
+                current_idx += 1
+        display_grid.append(display_col)
+
+    # 4. Calculate Column Widths (Must fit Header AND longest Data Item)
+    col_widths = []
+    for i in range(len(option_groups)):
+        # Width of data items in this column
+        data_col = display_grid[i]
+        max_data_w = max(len(s) for s in data_col) if data_col else 0
+
+        # Width of header (if exists)
+        header_w = len(headers[i]) if use_headers else 0
+
+        # Final width is the max of both
+        col_widths.append(max(max_data_w, header_w))
+
+    # Pre-build separator strings
+    sep_str = (" " * padding) + divider + (" " * padding)
+
+    # Determine max rows needed for data loop
+    max_data_rows = max(len(col) for col in display_grid) if display_grid else 0
+
+    user_input = ""
+    while not validate_input(user_input):
+        print(question)
+        print()  # Spacer between question and table
+
+        # --- A. Print Headers (if enabled) ---
+        if use_headers:
+            header_parts = []
+            divider_parts = []
+
+            for c, h_text in enumerate(headers):
+                width = col_widths[c]
+
+                # Format the header text
+                cell = h_text.ljust(width)
+
+                # Format the underline (using dashes matching column width)
+                # You can change "-" to "=" if you prefer a double line
+                div_line = ("-" * width)
+
+                if c < len(headers) - 1:
+                    header_parts.append(cell + sep_str)
+                    divider_parts.append(div_line + sep_str)
+                else:
+                    header_parts.append(cell)
+                    divider_parts.append(div_line)
+
+            print("".join(header_parts))
+            print("".join(divider_parts))
+
+        # --- B. Print Data Rows ---
+        for r in range(max_data_rows):
+            line_parts = []
+            for c in range(len(display_grid)):
+                col_strs = display_grid[c]
+                width = col_widths[c]
+
+                item_str = col_strs[r] if r < len(col_strs) else ""
+
+                if c < len(display_grid) - 1:
+                    cell = item_str.ljust(width)
+                    line_parts.append(cell + sep_str)
+                else:
+                    line_parts.append(item_str)
+
+            print("".join(line_parts))
+        print()
+
+        user_input = get_input()
+        if not validate_input(user_input):
+            invalid_input()
+
+    if user_input.isnumeric():
+        return int(user_input)
+    return flat_valid_options_lower.index(user_input.lower())
 
 
 def invalid_input() -> None:
     print(f"{_RED}Invalid input{_RESET}\n")
 
 
-def get_input(tip: str = "") -> str:
-    result = input(f"{_ITALIC}Enter your choice{f" ({tip})" if len(tip) > 0 else ''}: {_RESET}")
-    return result
+def get_input(*, message: str = "Enter your choice", tip: str = "", end: str = ": ") -> str:
+    result = input(f"{_ITALIC}{message}{f" ({tip})" if len(tip) > 0 else ''}{end}{_RESET}")
+    return result.strip()
 
 
 def log(msg: str) -> None:
@@ -97,11 +345,13 @@ if __name__ == '__main__':
     # log("Testing...")
     # print()
     # print(ask_for_bool("Do you want me to do it?"))
-    print()
+    print("'io_ulits.py' testing\n")
     options = [
         "Change database path",
         "Change database filename",
         "Override the file (file will be permanently lost)",
+        None,
         "Cancel database setup"
     ]
     selection = ask_for_choice(options)
+    print(f"\nYou've selected: '{selection}'")
