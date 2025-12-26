@@ -2,10 +2,9 @@ import os
 import sqlite3
 from dataclasses import dataclass, field
 from enum import StrEnum
-from importlib import resources as impresources
 from pathlib import Path
 
-from logistics import database
+from logistics.database.database import fetch_sql
 from logistics.io_utils import ask_for_bool, ask_for_choice, ask_for_string, error, log
 
 
@@ -124,7 +123,7 @@ def get_db_status(db_path: Path) -> DBStatus:
 
 
 def setup_new_database(db_path: Path) -> None:
-    schema_script = (impresources.files(database) / "database_schema.sql").read_text(encoding="utf-8")
+    schema_script = fetch_sql(".database_schema.sql")
 
     conn = sqlite3.connect(db_path)
 

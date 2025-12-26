@@ -6,8 +6,7 @@ CREATE TABLE warehouses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     location TEXT NOT NULL,
-    capacity_volume_cm INTEGER NOT NULL,
-    reserved_capacity_volume_cm INTEGER NOT NULL
+    capacity_volume_cm INTEGER NOT NULL
 ) STRICT;
 
 -- 2. Connections
@@ -19,14 +18,28 @@ CREATE TABLE connections (
 
     PRIMARY KEY (source_warehouse_id, target_warehouse_id),
     FOREIGN KEY (source_warehouse_id) REFERENCES warehouses(id),
-    FOREIGN KEY (target_warehouse_id) REFERENCES warehouses(id)
+    FOREIGN KEY (target_warehouse_id) REFERENCES warehouses(id),
+
+    -- CHECK 1: Prevent source == target
+    CONSTRAINT check_source_not_target CHECK (source_warehouse_id <> target_warehouse_id)
 ) STRICT;
+
+-- -- CHECK 2: Trigger to prevent adding (1, 0) if (0, 1) is already Two-Way
+-- CREATE TRIGGER prevent_redundant_reverse_connection
+-- BEFORE INSERT ON connections
+-- BEGIN
+--     SELECT RAISE(ABORT, 'Cannot add route: A two-way connection already exists in the reverse direction.')
+--     FROM connections
+--     WHERE source_warehouse_id = NEW.target_warehouse_id
+--         AND target_warehouse_id = NEW.source_warehouse_id
+--         AND is_two_way = 1;
+-- END;
 
 -- 3. Products
 CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    barcode TEXT NOT NULL,
+    barcode INTEGER NOT NULL,
     -- mass INTEGER NOT NULL,
     volume_cm INTEGER NOT NULL
 ) STRICT;
@@ -35,7 +48,7 @@ CREATE TABLE products (
 CREATE TABLE stock (
     product_id INTEGER NOT NULL,
     warehouse_id INTEGER NOT NULL,
-    count INTEGER NOT NULL DEFAULT 0,
+    count INTEGER NOT NULL CHECK ( count > 0 ),
 
     PRIMARY KEY (product_id, warehouse_id),
     FOREIGN KEY (product_id) REFERENCES products(id),
