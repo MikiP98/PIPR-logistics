@@ -35,3 +35,17 @@ def add_product_task(database: Database, _: VirtualClock) -> bool:
         print()
         warn("Cancelling the addition of the product")
     return False
+
+
+def add_stock_task(database: Database, _: VirtualClock) -> bool:
+    warehouse_id = ask_for_int("Provide the warehouse ID")
+    product_id = ask_for_int("Provide the product ID")
+    count = ask_for_int("Provide the number of stock")
+    confirm = ask_for_bool(
+        f"Confirm the addition of stock '{product_id}' to warehouse '{warehouse_id}' in count '{count}'"
+    )
+    if confirm:
+        return database.add_stock(warehouse_id, product_id, count)
+    else:
+        warn("Cancelling the addition of the stock")
+        return False

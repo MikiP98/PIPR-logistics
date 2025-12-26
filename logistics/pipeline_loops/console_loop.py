@@ -11,6 +11,7 @@ from logistics.io_utils import (
 )
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_product_task,
+    add_stock_task,
     add_warehouses_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
@@ -83,6 +84,7 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Ca
     # DataManipulationTasks
     DataManipulationTasks.ADD_WAREHOUSE: add_warehouses_task,
     DataManipulationTasks.ADD_PRODUCT: add_product_task,
+    DataManipulationTasks.ADD_STOCK: add_stock_task,
 
     # DebugTasks
     DebugTasks.CHANGE_TIME_SIMULATION_SCALE: change_time_simulation_scale_task,

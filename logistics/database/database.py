@@ -79,3 +79,18 @@ class Database:
         ).fetchone()
         self._conn.commit()
         return result
+
+    def add_stock(self, warehouse_id: int, product_id: int, count: int) -> bool:
+        if count < 0:
+            raise ValueError("count must be positive")
+
+        query = fetch_sql("add_stock.sql")
+        try:
+            self._cursor.execute(query, (product_id, warehouse_id, count))
+            self._conn.commit()
+            return True
+        except sqlite3.IntegrityError as e:
+            # Catches foreign key violations (e.g., product/warehouse doesn't exist)
+            print()
+            error(f"Error adding stock: {e}")
+            return False
