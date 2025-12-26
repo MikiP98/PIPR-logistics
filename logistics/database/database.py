@@ -20,3 +20,13 @@ class Database:
 
         # Safe connection closing on application exit
         atexit.register(self._conn.close)
+
+    # DataManipulationTasks
+    def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
+        result: bool = self._cursor.execute(
+            "INSERT INTO warehouses (name, location, capacity_volume_cm, reserved_capacity_volume_cm)"
+            "VALUES (?, ? ,?, 0)",
+            (name.lower(), location.lower(), capacity)
+        ).fetchone()
+        self._conn.commit()
+        return result
