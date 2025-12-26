@@ -49,3 +49,18 @@ def add_stock_task(database: Database, _: VirtualClock) -> bool:
     else:
         warn("Cancelling the addition of the stock")
         return False
+
+
+def add_transport_route_task(database: Database, _: VirtualClock) -> bool:
+    source_warehouse_id = ask_for_int("Provide the source warehouse ID")
+    target_warehouse_id = ask_for_int("Provide the target warehouse ID")
+    weeks, days, hours, minutes, seconds = ask_for_time("Provide the average travel time")
+    is_two_way = ask_for_bool("Is the route two way?")
+    minutes = math.ceil(float((((weeks * 7 + days) * 24 + hours) * 60 + minutes) * 60 + seconds) / 60.0)
+    confirm = ask_for_bool(
+        f"Confirm the addition of {"two way " if is_two_way else ""}transport route "
+        f"{"between" if is_two_way else "from"} warehouse '{source_warehouse_id}' "
+        f"{"and" if is_two_way else "to"} warehouse '{target_warehouse_id}' taking '{minutes}' minutes"
+    )
+    if confirm:
+        return database.add_transport_route(source_warehouse_id, target_warehouse_id, minutes, is_two_way)

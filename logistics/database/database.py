@@ -94,3 +94,37 @@ class Database:
             print()
             error(f"Error adding stock: {e}")
             return False
+
+    def add_transport_route(
+            self, source_warehouse_id: int, destination_warehouse_id: int, minutes: int, is_two_way: bool
+    ) -> bool:
+        return self._cursor.execute(
+            "INSERT INTO connections VALUES (?, ? ,? ,?)",
+            (source_warehouse_id, destination_warehouse_id, minutes, is_two_way)
+        ).fetchone()
+
+    def remove_stock(self, warehouse_id: int, product_id: int, count: int) -> bool:
+        if count is not None and count < 0:
+            raise ValueError("count must be positive")
+
+        query_check = "SELECT count FROM stock WHERE product_id = ? AND warehouse_id = ?"
+        current_row = self._cursor.execute(query_check, (product_id, warehouse_id)).fetchone()
+
+        if not current_row:
+            raise ValueError("stock does not exist")
+
+        current_count = current_row[0]
+
+        if current_count - count < 0:
+            raise ValueError("You can't remove more that what's already there")
+
+        if current_count - count == 0:
+            query_action = "DELETE FROM stock WHERE product_id = ? AND warehouse_id = ?"
+            self._cursor.execute(query_action, (product_id, warehouse_id))
+
+        else:
+            query_action = "UPDATE stock SET count = count - ? WHERE product_id = ? AND warehouse_id = ?"
+            self._cursor.execute(query_action, (current_count - count, product_id, warehouse_id))
+
+        self._conn.commit()
+        return True
