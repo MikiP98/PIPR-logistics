@@ -16,6 +16,10 @@ from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
     show_warehouse_details,
     show_warehouses_task,
 )
+from logistics.pipeline_loops.console_tasks.debug_and_simulation_tasks import (
+    change_time_simulation_scale_task,
+    offset_simulation_time_task,
+)
 from logistics.pipeline_loops.virtual_clock import VirtualClock
 
 
@@ -75,6 +79,10 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Ca
 
     # DataManipulationTasks
     DataManipulationTasks.ADD_WAREHOUSE: add_warehouses_task,
+
+    # DebugTasks
+    DebugTasks.CHANGE_TIME_SIMULATION_SCALE: change_time_simulation_scale_task,
+    DebugTasks.OFFSET_SIMULATION_TIME: offset_simulation_time_task,
 }
 
 
