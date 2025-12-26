@@ -58,12 +58,24 @@ class Database:
 
         return warehouse, stock, incoming_transports, outgoing_transports, passing_transports
 
+    def get_products(self) -> list[tuple[int, str, int, int]]:
+        return self._cursor.execute("SELECT * FROM products").fetchall()
+
     # DataManipulationTasks
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(
             "INSERT INTO warehouses (name, location, capacity_volume_cm, reserved_capacity_volume_cm)"
             "VALUES (?, ? ,?, 0)",
             (name.lower(), location.lower(), capacity)
+        ).fetchone()
+        self._conn.commit()
+        return result
+
+    def add_product(self, name: str, volume_cm: int) -> bool:
+        name = name.strip().lower()
+        result: bool = self._cursor.execute(
+            "INSERT INTO products (name, barcode, volume_cm) VALUES (?, ?, ?)",
+            (name, hash(name), volume_cm)  # hash() is enough of a barcode approximation
         ).fetchone()
         self._conn.commit()
         return result

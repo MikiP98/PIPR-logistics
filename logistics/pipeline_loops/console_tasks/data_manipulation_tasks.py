@@ -21,3 +21,17 @@ def add_warehouses_task(database: Database, _: VirtualClock) -> bool:
         print()
         warn("Cancelling the addition of the warehouse")
     return False
+
+
+def add_product_task(database: Database, _: VirtualClock) -> bool:
+    name = ask_for_string("Provide the name of the product")
+    print()
+    volume_cm = ask_for_int("Provide the volume of the product (cm^3)")
+    print()
+    confirm = ask_for_bool(f"Confirm the addition of product: name='{name}', volume={volume_cm}")
+    if confirm:
+        return database.add_product(name, volume_cm)
+    else:
+        print()
+        warn("Cancelling the addition of the product")
+    return False

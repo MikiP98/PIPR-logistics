@@ -10,9 +10,11 @@ from logistics.io_utils import (
     log,
 )
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
+    add_product_task,
     add_warehouses_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
+    show_products_task,
     show_warehouse_details,
     show_warehouses_task,
 )
@@ -76,9 +78,11 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Ca
     # DataRetrivalTasks
     DataRetrivalTasks.SHOW_WAREHOUSES: show_warehouses_task,
     DataRetrivalTasks.SHOW_WAREHOUSE_DETAILS: show_warehouse_details,
+    DataRetrivalTasks.SHOW_PRODUCTS: show_products_task,
 
     # DataManipulationTasks
     DataManipulationTasks.ADD_WAREHOUSE: add_warehouses_task,
+    DataManipulationTasks.ADD_PRODUCT: add_product_task,
 
     # DebugTasks
     DebugTasks.CHANGE_TIME_SIMULATION_SCALE: change_time_simulation_scale_task,

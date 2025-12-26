@@ -51,3 +51,8 @@ def show_warehouse_details(database: Database, _: VirtualClock) -> None:
         )
     else:
         log("THERE ARE NO PASSING TRANSPORTS")
+
+
+def show_products_task(database: Database, _: VirtualClock) -> None:
+    products = database.get_products()
+    print_table(products, ("ID", "NAME", "BARCODE", "VOLUME (cm^3)"))
