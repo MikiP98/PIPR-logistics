@@ -58,6 +58,9 @@ class Database:
 
         return warehouse, stock, incoming_transports, outgoing_transports, passing_transports
 
+    def get_warehouse_connections(self) -> list[tuple[int, int, str, str, int, str, str, bool]]:
+        return self._cursor.execute(fetch_sql("warehouse_connections.sql")).fetchall()
+
     def get_products(self) -> list[tuple[int, str, int, int]]:
         return self._cursor.execute("SELECT * FROM products").fetchall()
 

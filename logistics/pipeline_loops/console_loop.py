@@ -12,11 +12,13 @@ from logistics.io_utils import (
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_product_task,
     add_stock_task,
-    add_warehouses_task, add_transport_route_task,
+    add_transport_route_task,
+    add_warehouses_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
     show_products_task,
-    show_warehouse_details,
+    show_warehouse_connections_task,
+    show_warehouse_details_task,
     show_warehouses_task,
 )
 from logistics.pipeline_loops.console_tasks.debug_and_simulation_tasks import (
@@ -29,6 +31,17 @@ from logistics.pipeline_loops.virtual_clock import VirtualClock
 class TaskEnum(Enum):
     pass
 
+
+# Data retrieval tasks:
+# - show active transports
+# - show transport details {id}:
+#   - stat timestamp
+#   - destination arrival time estimation
+#   - past stops, predicted stops/next destination
+#   - progress to the next destination
+#   - total progress
+# - show finished transports
+# - show transport routes
 
 class DataRetrivalTasks(TaskEnum):
     SHOW_WAREHOUSES = auto()
@@ -44,6 +57,18 @@ class DataRetrivalTasks(TaskEnum):
     SHOW_PRODUCTS = auto()
     SHOW_PRODUCT_DETAILS = auto()
 
+
+# Data manipulation tasks:
+# - add transport route
+# - initialise transport <sup>(will make a reservation automatically)</sup>
+# - remove stock
+# - remove warehouse
+# - remove product
+# - remove transport route
+# - edit warehouse
+# - edit product
+# - edit route
+# - cancel transport <sup>(will create new transport back to start from the closest stop)</sup>
 
 class DataManipulationTasks(TaskEnum):
     ADD_WAREHOUSE = auto()
@@ -69,6 +94,11 @@ class DebugTasks(TaskEnum):
     OFFSET_SIMULATION_TIME = auto()
 
 
+# Config tasks:
+# - edit db connection config
+# - delete config
+# - delete database
+
 class ConfigTasks(TaskEnum):
     CHANGE_CONFIG = auto()
     DELETE_CONFIG = auto()
@@ -78,7 +108,8 @@ class ConfigTasks(TaskEnum):
 COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Callable[[VirtualClock], Any]] = {
     # DataRetrivalTasks
     DataRetrivalTasks.SHOW_WAREHOUSES: show_warehouses_task,
-    DataRetrivalTasks.SHOW_WAREHOUSE_DETAILS: show_warehouse_details,
+    DataRetrivalTasks.SHOW_WAREHOUSE_DETAILS: show_warehouse_details_task,
+    DataRetrivalTasks.SHOW_WAREHOUSE_CONNECTIONS: show_warehouse_connections_task,
     DataRetrivalTasks.SHOW_PRODUCTS: show_products_task,
 
     # DataManipulationTasks

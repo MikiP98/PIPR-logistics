@@ -8,7 +8,7 @@ def show_warehouses_task(database: Database, _: VirtualClock) -> None:
     print_table(warehouses, ("ID", "NAME", "LOCATION", "CAPACITY", "FILLED_CAPACITY", "RESERVED_CAPACITY"))
 
 
-def show_warehouse_details(database: Database, _: VirtualClock) -> None:
+def show_warehouse_details_task(database: Database, _: VirtualClock) -> None:
     warehouse_id = ask_for_int("Provide warehouse ID: ")
     print()
     warehouse_data, stock, incoming_transports, outgoing_transports, passing_transports = (
@@ -51,6 +51,20 @@ def show_warehouse_details(database: Database, _: VirtualClock) -> None:
         )
     else:
         log("THERE ARE NO PASSING TRANSPORTS")
+
+
+def show_warehouse_connections_task(database: Database, _: VirtualClock) -> None:
+    connections = database.get_warehouse_connections()
+    print_table(
+        connections,
+        (
+            "ID",
+            "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
+            "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
+            "TRANSPORTATION TIME",
+            "IS TWO WAY"
+        )
+    )
 
 
 def show_products_task(database: Database, _: VirtualClock) -> None:
