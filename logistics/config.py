@@ -48,10 +48,10 @@ def get_config() -> Config | None:
             print()
             database_filename = ask_for_string(
                 "Provide the database name.\n"
-                f"Leave empty for '{config.database_filename}'"
+                f"Leave empty for '{config.database_name}'"
             ).strip()
             if len(database_filename) != 0:
-                config.database_filename = database_filename
+                config.database_name = database_filename
 
             _config_path.parent.mkdir(parents=True, exist_ok=True)
             config.save()
