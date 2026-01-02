@@ -64,3 +64,6 @@ def add_transport_route_task(database: Database, _: VirtualClock) -> bool:
     )
     if confirm:
         return database.add_transport_route(source_warehouse_id, target_warehouse_id, minutes, is_two_way)
+    else:
+        warn("Cancelling the addition of the transport route/warehouse connection")
+        return False
