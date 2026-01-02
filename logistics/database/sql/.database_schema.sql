@@ -16,7 +16,7 @@ CREATE TABLE connections (
     transportation_time_minutes INTEGER NOT NULL,
     is_two_way INTEGER NOT NULL CHECK (is_two_way IN (0, 1)), -- "two_way" enforced as Bool
 
-    PRIMARY KEY (source_warehouse_id, target_warehouse_id),
+    PRIMARY KEY (source_warehouse_id, target_warehouse_id, is_two_way),
     FOREIGN KEY (source_warehouse_id) REFERENCES warehouses(id),
     FOREIGN KEY (target_warehouse_id) REFERENCES warehouses(id),
 
@@ -54,6 +54,58 @@ CREATE TABLE stock (
     FOREIGN KEY (product_id) REFERENCES products(id),
     FOREIGN KEY (warehouse_id) REFERENCES warehouses(id)
 ) STRICT;
+
+-- Trigger 1 for adding new stock
+CREATE TRIGGER prevent_overfill_insert
+BEFORE INSERT ON stock
+BEGIN
+    SELECT RAISE(ABORT, 'Insert failed: Warehouse capacity exceeded.')
+    WHERE (
+        -- 1. Get the Capacity of the target warehouse
+        (SELECT capacity_volume_cm FROM warehouses WHERE id = NEW.warehouse_id)
+        <
+        -- 2. Calculate the Hypothethical New Total Volume
+        (
+            -- Volume of the NEW item(s) being added
+            (NEW.count * (SELECT volume_cm FROM products WHERE id = NEW.product_id))
+            +
+            -- Volume of everything ELSE currently in the warehouse
+            (
+                SELECT TOTAL(s.count * p.volume_cm)
+                FROM stock s
+                JOIN products p ON s.product_id = p.id
+                WHERE s.warehouse_id = NEW.warehouse_id
+                AND s.product_id != NEW.product_id
+                -- distinct check ensures we don't double count, probably unnecessary
+            )
+        )
+    );
+END;
+
+-- Trigger 2 for updating existing stock counts
+CREATE TRIGGER prevent_overfill_update
+BEFORE UPDATE ON stock
+BEGIN
+    SELECT RAISE(ABORT, 'Update failed: Warehouse capacity exceeded.')
+    WHERE (
+        -- 1. Get the Capacity of the target warehouse
+        (SELECT capacity_volume_cm FROM warehouses WHERE id = NEW.warehouse_id)
+        <
+        -- 2. Calculate the Hypothethical New Total Volume
+        (
+            (NEW.count * (SELECT volume_cm FROM products WHERE id = NEW.product_id))
+            +
+            (
+                SELECT TOTAL(s.count * p.volume_cm)
+                FROM stock s
+                JOIN products p ON s.product_id = p.id
+                WHERE s.warehouse_id = NEW.warehouse_id
+                AND s.product_id != NEW.product_id
+                -- This excludes the "Old" version of the row
+            )
+        )
+    );
+END;
 
 -- 5. Transports
 CREATE TABLE transports (
