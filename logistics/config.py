@@ -36,6 +36,7 @@ def get_config() -> Config | None:
         if create_config:
             config = Config()
 
+            print()
             database_location = ask_for_string(
                 "Provide the path database should be in.\n"
                 "Leave empty for current directory\n"
@@ -44,15 +45,15 @@ def get_config() -> Config | None:
             if len(database_location) != 0:
                 config.database_location = parse_config_path(database_location)
 
+            print()
             database_filename = ask_for_string(
                 "Provide the database name.\n"
-                "Leave empty for current directory\n"
-                "Provide '%config%' for config file location"
+                f"Leave empty for '{config.database_filename}'"
             ).strip()
             if len(database_filename) != 0:
-                config.database_filename = parse_config_path(database_filename)
+                config.database_filename = database_filename
 
-            _config_path.mkdir(parents=True, exist_ok=True)
+            _config_path.parent.mkdir(parents=True, exist_ok=True)
             config.save()
             return config
         else:
