@@ -67,3 +67,33 @@ def add_transport_route_task(database: Database, _: VirtualClock) -> bool:
     else:
         warn("Cancelling the addition of the transport route/warehouse connection")
         return False
+
+
+def initialize_transport_task(database: Database, _: VirtualClock) -> bool:
+    source_warehouse_id = ask_for_int("Provide the source warehouse ID")
+    target_warehouse_id = ask_for_int("Provide the target warehouse ID")
+
+    transport_stock: dict[int, int] = {}
+    product_id: int | None = -1
+    while product_id is not None:
+        product_id = ask_for_int("Provide the product ID (leave empty to stop)", allow_none=True)
+        if product_id is not None:
+            count = ask_for_int("Provide the amount of product to transfer", minimum=1)
+            confirm = ask_for_bool(f"Confirm the addition of product '{product_id}' in count '{count}' to teh transfer")
+            if confirm:
+                transport_stock[product_id] = count
+
+    msg = [
+        "Confirm the initialization of the transport from warehouse '{source_warehouse_id}' "
+        "to warehouse '{target_warehouse_id}' "
+        "with stock:"
+    ]
+    for key, value in transport_stock.items():
+        msg.append(f"- {key}: {value}x")
+    confirm = ask_for_bool('\n'.join(msg))
+    if confirm:
+        database.initialize_transport(source_warehouse_id, target_warehouse_id, transport_stock)
+        return True
+    else:
+        warn("Cancelling the initialization of the transport")
+        return False

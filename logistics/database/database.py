@@ -67,8 +67,8 @@ class Database:
     # DataManipulationTasks
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(
-            "INSERT INTO warehouses (name, location, capacity_volume_cm, reserved_capacity_volume_cm)"
-            "VALUES (?, ? ,?, 0)",
+            "INSERT INTO warehouses (name, location, capacity_volume_cm)"
+            "VALUES (?, ? ,?)",
             (name.lower(), location.lower(), capacity)
         ).fetchone()
         self._conn.commit()
@@ -105,6 +105,22 @@ class Database:
             "INSERT INTO connections VALUES (?, ? ,? ,?)",
             (source_warehouse_id, destination_warehouse_id, minutes, is_two_way)
         ).fetchone()
+
+    def initialize_transport(
+            self, source_warehouse_id: int, target_warehouse_id: int, transport_stock: dict[int, int]
+    ) -> bool:
+        self._cursor.execute(
+            "INSERT INTO transports (source_warehouse_id, target_warehouse_id) VALUES (?, ?)",
+            (source_warehouse_id, target_warehouse_id)
+        )
+        transport_id: int = self._cursor.lastrowid
+        for product_id, count in transport_stock.items():
+            self._cursor.execute(
+                "INSERT INTO transported_stock (transport_id, product_id, count) VALUES (?, ?, ?)",
+                (transport_id, product_id, count)
+            )
+        self._conn.commit()
+        return True
 
     def remove_stock(self, warehouse_id: int, product_id: int, count: int) -> bool:
         if count is not None and count < 0:
