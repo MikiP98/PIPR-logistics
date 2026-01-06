@@ -162,6 +162,13 @@ def remove_product_task(database: Database, _: VirtualClock) -> None:
             database.remove_product(product_id)
 
 
+def remove_transport_route_task(database: Database, _: VirtualClock) -> None:
+    source_warehouse_id = ask_for_int("Provide the source warehouse ID")
+    target_warehouse_id = ask_for_int("Provide the target warehouse ID")
+    is_two_way = ask_for_bool("Is the route a two-way route?")
+    database.remove_transport_route(source_warehouse_id, target_warehouse_id, is_two_way)
+
+
 def remove_stock_task(database: Database, _: VirtualClock) -> bool:
     warehouse_id = ask_for_int("Provide the warehouse ID")
     product_id = ask_for_int("Provide the product ID")

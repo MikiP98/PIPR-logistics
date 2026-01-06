@@ -173,6 +173,12 @@ class Database:
     def remove_product(self, product_id: int) -> bool:
         return self._cursor.execute("DELETE FROM products WHERE id=?", (product_id,)).fetchone()
 
+    def remove_transport_route(self, source_warehouse_id: int, destination_warehouse_id: int, is_two_way: bool) -> None:
+        self._cursor.execute(
+            "DELETE FROM connections WHERE source_warehouse_id=? AND target_warehouse_id=? AND is_two_way=?",
+            (source_warehouse_id, destination_warehouse_id, is_two_way)
+        )
+
     def reroute_transport(self, transport_id: int, new_target_warehouse_id: int) -> bool:
         return self._cursor.execute(
             "UPDATE transports SET target_warehouse_id = ? WHERE id = ?",
