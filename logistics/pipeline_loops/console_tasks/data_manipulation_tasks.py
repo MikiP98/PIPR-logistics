@@ -146,7 +146,7 @@ def remove_warehouse_task(database: Database, _: VirtualClock) -> bool:
         database.remove_warehouse(warehouse_id)
 
 
-def remove_product_task(database: Database, _: VirtualClock) -> bool:
+def remove_product_task(database: Database, _: VirtualClock) -> None:
     product_id = ask_for_int("Provide the product ID")
     confirm = ask_for_bool(f"Confirm the removal of the product '{product_id}'")
     if confirm:
