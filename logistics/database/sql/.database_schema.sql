@@ -24,16 +24,16 @@ CREATE TABLE connections (
     CONSTRAINT check_source_not_target CHECK (source_warehouse_id <> target_warehouse_id)
 ) STRICT;
 
--- -- CHECK 2: Trigger to prevent adding (1, 0) if (0, 1) is already Two-Way
--- CREATE TRIGGER prevent_redundant_reverse_connection
--- BEFORE INSERT ON connections
--- BEGIN
---     SELECT RAISE(ABORT, 'Cannot add route: A two-way connection already exists in the reverse direction.')
---     FROM connections
---     WHERE source_warehouse_id = NEW.target_warehouse_id
---         AND target_warehouse_id = NEW.source_warehouse_id
---         AND is_two_way = 1;
--- END;
+-- CHECK 2: Trigger to prevent adding (1, 0) if (0, 1) is already Two-Way
+CREATE TRIGGER prevent_redundant_reverse_connection
+BEFORE INSERT ON connections
+BEGIN
+    SELECT RAISE(ABORT, 'Cannot add route: A two-way connection already exists in the reverse direction.')
+    FROM connections
+    WHERE source_warehouse_id = NEW.target_warehouse_id
+        AND target_warehouse_id = NEW.source_warehouse_id
+        AND is_two_way = 1 AND NEW.is_two_way = 1;
+END;
 
 -- 3. Products
 CREATE TABLE products (
