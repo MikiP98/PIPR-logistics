@@ -64,9 +64,15 @@ class Database:
     def get_products(self) -> list[tuple[int, str, int, int]]:
         return self._cursor.execute("SELECT * FROM products").fetchall()
 
-    def get_stock(self, warehouse_id: int) -> list[tuple[int, int, int]]:
+    def get_stock(self, warehouse_id: int) -> list[tuple[int, int]]:
         return self._cursor.execute(
             "SELECT product_id, count FROM stock WHERE warehouse_id=?",
+            (warehouse_id,)
+        ).fetchall()
+
+    def get_product_stock(self, warehouse_id: int) -> list[tuple[int, int]]:
+        return self._cursor.execute(
+            "SELECT warehouse_id, count FROM stock WHERE product_id=?",
             (warehouse_id,)
         ).fetchall()
 
@@ -163,6 +169,9 @@ class Database:
 
     def remove_warehouse(self, warehouse_id: int) -> bool:
         return self._cursor.execute("DELETE FROM warehouses WHERE warehouse_id=?", (warehouse_id,)).fetchone()
+
+    def remove_product(self, product_id: int) -> bool:
+        return self._cursor.execute("DELETE FROM products WHERE id=?", (product_id,)).fetchone()
 
     def reroute_transport(self, transport_id: int, new_target_warehouse_id: int) -> bool:
         return self._cursor.execute(

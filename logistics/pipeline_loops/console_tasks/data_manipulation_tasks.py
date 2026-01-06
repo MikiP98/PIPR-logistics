@@ -3,7 +3,8 @@ import math
 from pipeline_loops.virtual_clock import VirtualClock
 
 from logistics.database.database import Database
-from logistics.io_utils import ask_for_bool, ask_for_int, ask_for_string, ask_for_time, warn, ask_for_choice, log
+from logistics.io_utils import ask_for_bool, ask_for_int, ask_for_string, ask_for_time, warn, ask_for_choice, log, \
+    print_table
 
 
 def add_warehouses_task(database: Database, _: VirtualClock) -> bool:
@@ -106,7 +107,7 @@ def remove_warehouse_task(database: Database, _: VirtualClock) -> bool:
         # Handle existing stock
         stock = database.get_stock(warehouse_id)
         if len(stock) > 0:
-            log("Warehouse selected for deletion is not empty")
+            warn("Warehouse selected for deletion is not empty")
             confirm = False
             while not confirm:
                 choice = ask_for_choice(
@@ -132,7 +133,7 @@ def remove_warehouse_task(database: Database, _: VirtualClock) -> bool:
         # Handle incoming transports
         incoming_transports = database.get_incoming_transports(warehouse_id)
         if len(incoming_transports) > 0:
-            log("Incoming transports found")
+            warn("Incoming transports found")
             for transport_id, target_warehouse_id in incoming_transports:
                 choice = ask_for_choice(
                     ["Cancel", "Reroute"],
@@ -143,6 +144,22 @@ def remove_warehouse_task(database: Database, _: VirtualClock) -> bool:
                 database.reroute_transport(transport_id, target_warehouse_id)
 
         database.remove_warehouse(warehouse_id)
+
+
+def remove_product_task(database: Database, _: VirtualClock) -> bool:
+    product_id = ask_for_int("Provide the product ID")
+    confirm = ask_for_bool(f"Confirm the removal of the product '{product_id}'")
+    if confirm:
+        stock = database.get_product_stock(product_id)
+        if len(stock) > 0:
+            warn(f"Product selected for deletion is located in '{len(stock)}' warehouses")
+            print_table(stock, ("WAREHOUSE ID", "COUNT"))
+            confirm = ask_for_bool(f"Confirm the removal of this stock alongside the product")
+            if confirm:
+                for warehouse_id, _ in stock:
+                    database.remove_stock(warehouse_id, product_id, None)
+        if confirm:
+            database.remove_product(product_id)
 
 
 def remove_stock_task(database: Database, _: VirtualClock) -> bool:
