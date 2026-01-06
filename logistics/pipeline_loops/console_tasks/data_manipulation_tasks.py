@@ -97,3 +97,19 @@ def initialize_transport_task(database: Database, _: VirtualClock) -> bool:
     else:
         warn("Cancelling the initialization of the transport")
         return False
+
+
+def remove_stock_task(database: Database, _: VirtualClock) -> bool:
+    warehouse_id = ask_for_int("Provide the warehouse ID")
+    product_id = ask_for_int("Provide the product ID")
+    count = ask_for_int("Provide the number of stock", allow_none=True)
+    confirm = ask_for_bool(
+        f"Confirm the removal of stock '{product_id}' "
+        f"to warehouse '{warehouse_id}' "
+        f"in count '{count if count is not None else "all"}'"
+    )
+    if confirm:
+        return database.remove_stock(warehouse_id, product_id, count)
+    else:
+        warn("Cancelling the removal of the stock")
+        return False

@@ -122,7 +122,7 @@ class Database:
         self._conn.commit()
         return True
 
-    def remove_stock(self, warehouse_id: int, product_id: int, count: int) -> bool:
+    def remove_stock(self, warehouse_id: int, product_id: int, count: int | None) -> bool:
         if count is not None and count < 0:
             raise ValueError("count must be positive")
 
@@ -134,16 +134,17 @@ class Database:
 
         current_count = current_row[0]
 
-        if current_count - count < 0:
-            raise ValueError("You can't remove more that what's already there")
-
-        if current_count - count == 0:
+        if count is None or current_count - count == 0:
             query_action = "DELETE FROM stock WHERE product_id = ? AND warehouse_id = ?"
             self._cursor.execute(query_action, (product_id, warehouse_id))
 
-        else:
+        elif current_count - count > 0:
             query_action = "UPDATE stock SET count = count - ? WHERE product_id = ? AND warehouse_id = ?"
             self._cursor.execute(query_action, (current_count - count, product_id, warehouse_id))
+
+        else:
+            # current_count - count < 0
+            raise ValueError("You can't remove more that what's there to remove")
 
         self._conn.commit()
         return True
