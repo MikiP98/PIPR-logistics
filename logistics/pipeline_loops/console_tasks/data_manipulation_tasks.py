@@ -14,7 +14,7 @@ from logistics.io_utils import (
 )
 
 
-def add_warehouses_task(database: Database, _: VirtualClock) -> bool:
+def add_warehouses_task(database: Database, _: VirtualClock) -> None:
     name = ask_for_string("Provide the name of the warehouse")
     print()
     location = ask_for_string("Provide the location of the warehouse")
@@ -24,28 +24,26 @@ def add_warehouses_task(database: Database, _: VirtualClock) -> bool:
         f"Confirm the addition of warehouse: name='{name}', location='{location}', capacity={capacity}'",
     )
     if confirm:
-        return database.add_warehouse(name, location, capacity)
+        database.add_warehouse(name, location, capacity)
     else:
         print()
         warn("Cancelling the addition of the warehouse")
-    return False
 
 
-def add_product_task(database: Database, _: VirtualClock) -> bool:
+def add_product_task(database: Database, _: VirtualClock) -> None:
     name = ask_for_string("Provide the name of the product")
     print()
     volume_cm = ask_for_int("Provide the volume of the product (cm^3)")
     print()
     confirm = ask_for_bool(f"Confirm the addition of product: name='{name}', volume={volume_cm}")
     if confirm:
-        return database.add_product(name, volume_cm)
+        database.add_product(name, volume_cm)
     else:
         print()
         warn("Cancelling the addition of the product")
-    return False
 
 
-def add_stock_task(database: Database, _: VirtualClock) -> bool:
+def add_stock_task(database: Database, _: VirtualClock) -> None:
     warehouse_id = ask_for_int("Provide the warehouse ID")
     product_id = ask_for_int("Provide the product ID")
     count = ask_for_int("Provide the number of stock")
@@ -53,13 +51,12 @@ def add_stock_task(database: Database, _: VirtualClock) -> bool:
         f"Confirm the addition of stock '{product_id}' to warehouse '{warehouse_id}' in count '{count}'"
     )
     if confirm:
-        return database.add_stock(warehouse_id, product_id, count)
+        database.add_stock(warehouse_id, product_id, count)
     else:
         warn("Cancelling the addition of the stock")
-        return False
 
 
-def add_transport_route_task(database: Database, _: VirtualClock) -> bool:
+def add_transport_route_task(database: Database, _: VirtualClock) -> None:
     source_warehouse_id = ask_for_int("Provide the source warehouse ID")
     target_warehouse_id = ask_for_int("Provide the target warehouse ID")
     weeks, days, hours, minutes, seconds = ask_for_time("Provide the average travel time")
@@ -71,13 +68,12 @@ def add_transport_route_task(database: Database, _: VirtualClock) -> bool:
         f"{"and" if is_two_way else "to"} warehouse '{target_warehouse_id}' taking '{minutes}' minutes"
     )
     if confirm:
-        return database.add_transport_route(source_warehouse_id, target_warehouse_id, minutes, is_two_way)
+        database.add_transport_route(source_warehouse_id, target_warehouse_id, minutes, is_two_way)
     else:
         warn("Cancelling the addition of the transport route/warehouse connection")
-        return False
 
 
-def initialize_transport_task(database: Database, _: VirtualClock) -> bool:
+def initialize_transport_task(database: Database, _: VirtualClock) -> None:
     source_warehouse_id = ask_for_int("Provide the source warehouse ID")
     target_warehouse_id = ask_for_int("Provide the target warehouse ID")
 
@@ -101,13 +97,11 @@ def initialize_transport_task(database: Database, _: VirtualClock) -> bool:
     confirm = ask_for_bool('\n'.join(msg))
     if confirm:
         database.initialize_transport(source_warehouse_id, target_warehouse_id, transport_stock)
-        return True
     else:
         warn("Cancelling the initialization of the transport")
-        return False
 
 
-def remove_warehouse_task(database: Database, _: VirtualClock) -> bool:
+def remove_warehouse_task(database: Database, _: VirtualClock) -> None:
     warehouse_id = ask_for_int("Provide the warehouse ID")
     confirm = ask_for_bool(f"Confirm the removal of the warehouse with id '{warehouse_id}'")
     if confirm:
@@ -176,7 +170,7 @@ def remove_transport_route_task(database: Database, _: VirtualClock) -> None:
     database.remove_transport_route(source_warehouse_id, target_warehouse_id, is_two_way)
 
 
-def remove_stock_task(database: Database, _: VirtualClock) -> bool:
+def remove_stock_task(database: Database, _: VirtualClock) -> None:
     warehouse_id = ask_for_int("Provide the warehouse ID")
     product_id = ask_for_int("Provide the product ID")
     count = ask_for_int("Provide the number of stock", allow_none=True)
@@ -186,16 +180,15 @@ def remove_stock_task(database: Database, _: VirtualClock) -> bool:
         f"in count '{count if count is not None else "all"}'"
     )
     if confirm:
-        return database.remove_stock(warehouse_id, product_id, count)
+        database.remove_stock(warehouse_id, product_id, count)
     else:
         warn("Cancelling the removal of the stock")
-        return False
 
 
 def edit_warehouse_task(database: Database, _: VirtualClock) -> None:
     warehouse_id = ask_for_int("Provide the warehouse ID")
     choice = -1
-    while choice != 3:
+    while choice < 3:
         choice = ask_for_choice(["Name", "Location", "Capacity", "Exit"], "What do you want to change?")
         if choice == 0:
             _change_warehouse_name(database, warehouse_id)
