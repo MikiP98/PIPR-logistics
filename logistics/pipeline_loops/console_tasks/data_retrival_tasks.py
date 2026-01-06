@@ -70,3 +70,32 @@ def show_warehouse_connections_task(database: Database, _: VirtualClock) -> None
 def show_products_task(database: Database, _: VirtualClock) -> None:
     products = database.get_products()
     print_table(products, ("ID", "NAME", "BARCODE", "VOLUME (cm^3)"))
+
+
+def show_active_transports_task(database: Database, _: VirtualClock) -> None:
+    active_transports = database.get_active_transports()
+    print_table(
+        active_transports,
+        (
+            "ID",
+            "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
+            "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
+            "TRANSPORT START TIME",
+            "LAST STOP WAREHOUSE ID", "LAST STOP WAREHOUSE NAME", "LAST STOP WAREHOUSE LOCATION", "LAST STOP TIME",
+            "NEXT STOP WAREHOUSE ID", "NEXT STOP WAREHOUSE NAME", "NEXT STOP WAREHOUSE LOCATION",
+        )  # TODO: Next stop and finish ETA?
+    )
+
+
+def show_finished_transports_task(database: Database, _: VirtualClock) -> None:
+    finished_transports = database.get_finished_transports()
+    print_table(
+        finished_transports,
+        (
+            "ID",
+            "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
+            "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
+            "STOP COUNT",
+            "TRANSPORT START TIME", "TRANSPORT END TIME", "TOTAL TRANSPORT TIME"
+        )
+    )

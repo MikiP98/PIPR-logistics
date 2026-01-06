@@ -82,6 +82,12 @@ class Database:
             (warehouse_id,)
         ).fetchall()
 
+    def get_active_transports(self) -> list[tuple[int, int]]:
+        return self._cursor.execute(fetch_sql("get_active_transports.sql")).fetchall()
+
+    def get_finished_transports(self) -> list[tuple[int, int]]:
+        return self._cursor.execute(fetch_sql("get_finished_transports.sql")).fetchall()
+
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(
