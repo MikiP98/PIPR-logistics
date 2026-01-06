@@ -133,25 +133,23 @@ class Database:
         return self._cursor.execute("SELECT capacity_volume_cm FROM warehouses WHERE id=?", (warehouse_id,)).fetchone()
 
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
-    def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
-        result: bool = self._cursor.execute(
+    def add_warehouse(self, name: str, location: str, capacity: int) -> None:
+        self._cursor.execute(
             "INSERT INTO warehouses (name, location, capacity_volume_cm)"
             "VALUES (?, ? ,?)",
             (name.lower(), location.lower(), capacity)
         ).fetchone()
         self._conn.commit()
-        return result
 
-    def add_product(self, name: str, volume_cm: int) -> bool:
+    def add_product(self, name: str, volume_cm: int) -> None:
         name = name.strip().lower()
-        result: bool = self._cursor.execute(
+        self._cursor.execute(
             "INSERT INTO products (name, barcode, volume_cm) VALUES (?, ?, ?)",
             (name, hash(name), volume_cm)  # hash() is enough of a barcode approximation
         ).fetchone()
         self._conn.commit()
-        return result
 
-    def add_stock(self, warehouse_id: int, product_id: int, count: int) -> bool:
+    def add_stock(self, warehouse_id: int, product_id: int, count: int) -> None:
         if count < 0:
             raise ValueError("count must be positive")
 
@@ -159,20 +157,19 @@ class Database:
         try:
             self._cursor.execute(query, (product_id, warehouse_id, count))
             self._conn.commit()
-            return True
         except sqlite3.IntegrityError as e:
             # Catches foreign key violations (e.g., product/warehouse doesn't exist)
-            print()
             error(f"Error adding stock: {e}")
-            return False
+            raise
 
     def add_transport_route(
             self, source_warehouse_id: int, destination_warehouse_id: int, minutes: int, is_two_way: bool
-    ) -> bool:
-        return self._cursor.execute(
+    ) -> None:
+        self._cursor.execute(
             "INSERT INTO connections VALUES (?, ? ,? ,?)",
             (source_warehouse_id, destination_warehouse_id, minutes, is_two_way)
         ).fetchone()
+        self._conn.commit()
 
     def initialize_transport(
             self, source_warehouse_id: int, target_warehouse_id: int, transport_stock: dict[int, int]
@@ -190,7 +187,7 @@ class Database:
         self._conn.commit()
         return True
 
-    def remove_stock(self, warehouse_id: int, product_id: int, count: int | None) -> bool:
+    def remove_stock(self, warehouse_id: int, product_id: int, count: int | None) -> None:
         if count is not None and count < 0:
             raise ValueError("count must be positive")
 
@@ -210,36 +207,41 @@ class Database:
             query_action = "UPDATE stock SET count = count - ? WHERE product_id = ? AND warehouse_id = ?"
             self._cursor.execute(query_action, (count, product_id, warehouse_id))
 
-        else:
-            # current_count - count < 0
+        else:  # current_count - count < 0
             raise ValueError("You can't remove more that what's there to remove")
 
         self._conn.commit()
-        return True
 
-    def remove_warehouse(self, warehouse_id: int) -> bool:
-        return self._cursor.execute("DELETE FROM warehouses WHERE warehouse_id=?", (warehouse_id,)).fetchone()
+    def remove_warehouse(self, warehouse_id: int) -> None:
+        self._cursor.execute("DELETE FROM warehouses WHERE warehouse_id=?", (warehouse_id,)).fetchone()
+        self._conn.commit()
 
-    def remove_product(self, product_id: int) -> bool:
-        return self._cursor.execute("DELETE FROM products WHERE id=?", (product_id,)).fetchone()
+    def remove_product(self, product_id: int) -> None:
+        self._cursor.execute("DELETE FROM products WHERE id=?", (product_id,)).fetchone()
+        self._conn.commit()
 
     def remove_transport_route(self, source_warehouse_id: int, destination_warehouse_id: int, is_two_way: bool) -> None:
         self._cursor.execute(
             "DELETE FROM connections WHERE source_warehouse_id=? AND target_warehouse_id=? AND is_two_way=?",
             (source_warehouse_id, destination_warehouse_id, is_two_way)
         )
+        self._conn.commit()
 
-    def reroute_transport(self, transport_id: int, new_target_warehouse_id: int) -> bool:
-        return self._cursor.execute(
+    def reroute_transport(self, transport_id: int, new_target_warehouse_id: int) -> None:
+        self._cursor.execute(
             "UPDATE transports SET target_warehouse_id = ? WHERE id = ?",
             (new_target_warehouse_id, transport_id)
         ).fetchone()
+        self._conn.commit()
 
     def change_warehouse_name(self, warehouse_id: int, new_name: str) -> None:
         self._cursor.execute("UPDATE warehouses SET name = ? WHERE id = ?", (new_name, warehouse_id))
+        self._conn.commit()
 
     def change_warehouse_location(self, warehouse_id: int, new_location: str) -> None:
         self._cursor.execute("UPDATE warehouses SET location = ? WHERE id = ?", (new_location, warehouse_id))
+        self._conn.commit()
 
     def change_warehouse_capacity(self, warehouse_id: int, new_capacity: int) -> None:
         self._cursor.execute("UPDATE warehouses SET capacity = ? WHERE id = ?", (new_capacity, warehouse_id))
+        self._conn.commit()
