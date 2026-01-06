@@ -43,7 +43,6 @@ class TaskEnum(Enum):
 #   - progress to the next destination
 #   - total progress
 # - show finished transports
-# - show transport routes
 
 class DataRetrivalTasks(TaskEnum):
     SHOW_WAREHOUSES = auto()
