@@ -3,7 +3,7 @@ import math
 from pipeline_loops.virtual_clock import VirtualClock
 
 from logistics.database.database import Database
-from logistics.io_utils import ask_for_bool, ask_for_int, ask_for_string, ask_for_time, warn
+from logistics.io_utils import ask_for_bool, ask_for_int, ask_for_string, ask_for_time, warn, ask_for_choice, log
 
 
 def add_warehouses_task(database: Database, _: VirtualClock) -> bool:
@@ -97,6 +97,52 @@ def initialize_transport_task(database: Database, _: VirtualClock) -> bool:
     else:
         warn("Cancelling the initialization of the transport")
         return False
+
+
+def remove_warehouse_task(database: Database, _: VirtualClock) -> bool:
+    warehouse_id = ask_for_int("Provide the warehouse ID")
+    confirm = ask_for_bool(f"Confirm the removal of the warehouse with id '{warehouse_id}'")
+    if confirm:
+        # Handle existing stock
+        stock = database.get_stock(warehouse_id)
+        if len(stock) > 0:
+            log("Warehouse selected for deletion is not empty")
+            confirm = False
+            while not confirm:
+                choice = ask_for_choice(
+                    ["Remove stock", "Transport stock"],
+                    "What do you want to do with existing stock?"
+                )
+                if choice == 0:
+                    confirm = ask_for_bool(f"Confirm the removal of all stock from warehouse '{warehouse_id}'")
+                    if confirm:
+                        for entry in stock:
+                            database.remove_stock(warehouse_id, entry[0], None)
+                else:  # choice == 1
+                    target_warehouse_id = ask_for_int("Provide the target warehouse ID")
+                    confirm = ask_for_bool(
+                        f"Confirm the transport of all stock from warehouse '{warehouse_id}' "
+                        f"to warehouse '{target_warehouse_id}'"
+                    )
+                    if confirm:
+                        transport_stock = {}
+                        for entry in stock:
+                            transport_stock[entry[0]] = entry[1]
+                        database.initialize_transport(warehouse_id, target_warehouse_id, transport_stock)
+        # Handle incoming transports
+        incoming_transports = database.get_incoming_transports(warehouse_id)
+        if len(incoming_transports) > 0:
+            log("Incoming transports found")
+            for transport_id, target_warehouse_id in incoming_transports:
+                choice = ask_for_choice(
+                    ["Cancel", "Reroute"],
+                    f"What do you want to do with transport '{transport_id}' '"
+                )
+                if choice == 1:
+                    target_warehouse_id = ask_for_int("Provide the new target warehouse ID")
+                database.reroute_transport(transport_id, target_warehouse_id)
+
+        database.remove_warehouse(warehouse_id)
 
 
 def remove_stock_task(database: Database, _: VirtualClock) -> bool:

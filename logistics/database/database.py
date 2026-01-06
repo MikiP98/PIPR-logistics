@@ -64,6 +64,18 @@ class Database:
     def get_products(self) -> list[tuple[int, str, int, int]]:
         return self._cursor.execute("SELECT * FROM products").fetchall()
 
+    def get_stock(self, warehouse_id: int) -> list[tuple[int, int, int]]:
+        return self._cursor.execute(
+            "SELECT product_id, count FROM stock WHERE warehouse_id=?",
+            (warehouse_id,)
+        ).fetchall()
+
+    def get_incoming_transports(self, warehouse_id: int) -> list[tuple[int, int]]:
+        return self._cursor.execute(
+            "SELECT id, source_warehouse_id FROM transports WHERE target_warehouse_id=?",
+            (warehouse_id,)
+        ).fetchall()
+
     # DataManipulationTasks
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(
@@ -140,7 +152,7 @@ class Database:
 
         elif current_count - count > 0:
             query_action = "UPDATE stock SET count = count - ? WHERE product_id = ? AND warehouse_id = ?"
-            self._cursor.execute(query_action, (current_count - count, product_id, warehouse_id))
+            self._cursor.execute(query_action, (count, product_id, warehouse_id))
 
         else:
             # current_count - count < 0
@@ -148,3 +160,12 @@ class Database:
 
         self._conn.commit()
         return True
+
+    def remove_warehouse(self, warehouse_id: int) -> bool:
+        return self._cursor.execute("DELETE FROM warehouses WHERE warehouse_id=?", (warehouse_id,)).fetchone()
+
+    def reroute_transport(self, transport_id: int, new_target_warehouse_id: int) -> bool:
+        return self._cursor.execute(
+            "UPDATE transports SET target_warehouse_id = ? WHERE id = ?",
+            (new_target_warehouse_id, transport_id)
+        ).fetchone()

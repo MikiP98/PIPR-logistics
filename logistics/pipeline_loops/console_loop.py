@@ -14,7 +14,7 @@ from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_stock_task,
     add_transport_route_task,
     add_warehouses_task,
-    initialize_transport_task, remove_stock_task,
+    initialize_transport_task, remove_stock_task, remove_warehouse_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
     show_products_task,
@@ -60,7 +60,6 @@ class DataRetrivalTasks(TaskEnum):
 
 
 # Data manipulation tasks:
-# - remove warehouse
 # - remove product
 # - remove transport route
 # - edit warehouse
@@ -118,6 +117,7 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Ca
 
     DataManipulationTasks.INITIALIZE_TRANSPORT: initialize_transport_task,
 
+    DataManipulationTasks.REMOVE_WAREHOUSE: remove_warehouse_task,
     DataManipulationTasks.REMOVE_STOCK: remove_stock_task,
 
     # DebugTasks
