@@ -227,3 +227,35 @@ def _change_warehouse_capacity(database: Database, warehouse_id: int) -> None:
     else:
         warn("Cancelling the change of the warehouse capacity")
     # TODO: Add a trigger SQL check preventing warehouse overflow
+
+
+def edit_product_task(database: Database, _: VirtualClock) -> None:
+    product_id = ask_for_int("Provide the product ID")
+    choice = -1
+    while choice < 2:
+        choice = ask_for_choice(["Name", "Volume", "Exit"], "What do you want to change?")
+        if choice == 0:
+            _change_product_name(database, product_id)
+        elif choice == 1:
+            _change_product_volume(database, product_id)
+
+
+def _change_product_name(database: Database, product_id: int) -> None:
+    new_name = ask_for_string("Provide the new product name")
+    old_name = database.get_product_name(product_id)
+    confirm = ask_for_bool(f"Confirm the change of the product name from '{old_name}' to '{new_name}'")
+    if confirm:
+        database.change_product_name(product_id, new_name)
+    else:
+        warn("Cancelling the change of the product name")
+
+
+def _change_product_volume(database: Database, product_id: int) -> None:
+    new_volume = ask_for_int("Provide the new product volume")
+    old_volume = database.get_product_volume(product_id)
+    confirm = ask_for_bool(f"Confirm the change of the product volume from '{old_volume} cm^3' to '{new_volume} cm^3'")
+    if confirm:
+        database.change_product_volume(product_id, new_volume)
+    else:
+        warn("Cancelling the change of the product volume")
+    # TODO: Add a trigger SQL check preventing warehouse overflow

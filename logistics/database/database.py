@@ -132,6 +132,12 @@ class Database:
     def get_warehouse_capacity(self, warehouse_id: int) -> int:
         return self._cursor.execute("SELECT capacity_volume_cm FROM warehouses WHERE id=?", (warehouse_id,)).fetchone()
 
+    def get_product_name(self, product_id: int) -> str:
+        return self._cursor.execute("SELECT name FROM products WHERE id=?", (product_id,)).fetchone()
+
+    def get_product_volume(self, product_id: int) -> int:
+        return self._cursor.execute("SELECT volume_cm FROM products WHERE id=?", (product_id,)).fetchone()
+
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> None:
         self._cursor.execute(
@@ -244,4 +250,15 @@ class Database:
 
     def change_warehouse_capacity(self, warehouse_id: int, new_capacity: int) -> None:
         self._cursor.execute("UPDATE warehouses SET capacity = ? WHERE id = ?", (new_capacity, warehouse_id))
+        self._conn.commit()
+
+    def change_product_name(self, product_id: int, new_name: str) -> None:
+        self._cursor.execute(
+            "UPDATE products SET name = ?, barcode = ? WHERE id = ?",
+            (new_name, hash(new_name), product_id)
+        )
+        self._conn.commit()
+
+    def change_product_volume(self, product_id: int, new_volume: int) -> None:
+        self._cursor.execute("UPDATE products SET volume_cm = ? WHERE id = ?", (new_volume, product_id))
         self._conn.commit()
