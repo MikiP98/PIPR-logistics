@@ -123,6 +123,15 @@ class Database:
     def is_transport_active(self, warehouse_id: int) -> bool:
         return bool(self._cursor.execute(fetch_sql("is_transport_active.sql"), (warehouse_id,)).fetchone())
 
+    def get_warehouse_name(self, warehouse_id: int) -> str:
+        return self._cursor.execute("SELECT name FROM warehouses WHERE id=?", (warehouse_id,)).fetchone()
+
+    def get_warehouse_location(self, warehouse_id: int) -> str:
+        return self._cursor.execute("SELECT location FROM warehouses WHERE id=?", (warehouse_id,)).fetchone()
+
+    def get_warehouse_capacity(self, warehouse_id: int) -> int:
+        return self._cursor.execute("SELECT capacity_volume_cm FROM warehouses WHERE id=?", (warehouse_id,)).fetchone()
+
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(
@@ -225,3 +234,12 @@ class Database:
             "UPDATE transports SET target_warehouse_id = ? WHERE id = ?",
             (new_target_warehouse_id, transport_id)
         ).fetchone()
+
+    def change_warehouse_name(self, warehouse_id: int, new_name: str) -> None:
+        self._cursor.execute("UPDATE warehouses SET name = ? WHERE id = ?", (new_name, warehouse_id))
+
+    def change_warehouse_location(self, warehouse_id: int, new_location: str) -> None:
+        self._cursor.execute("UPDATE warehouses SET location = ? WHERE id = ?", (new_location, warehouse_id))
+
+    def change_warehouse_capacity(self, warehouse_id: int, new_capacity: int) -> None:
+        self._cursor.execute("UPDATE warehouses SET capacity = ? WHERE id = ?", (new_capacity, warehouse_id))

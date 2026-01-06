@@ -1,7 +1,6 @@
 from collections.abc import Callable
 from enum import Enum, auto
 from pathlib import Path
-from typing import Any
 
 from logistics.database.database import Database
 from logistics.io_utils import (
@@ -14,6 +13,7 @@ from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_stock_task,
     add_transport_route_task,
     add_warehouses_task,
+    edit_warehouse_task,
     initialize_transport_task,
     remove_product_task,
     remove_stock_task,
@@ -55,7 +55,6 @@ class DataRetrivalTasks(TaskEnum):
 
 
 # Data manipulation tasks:
-# - edit warehouse
 # - edit product
 # - edit route
 # - cancel transport <sup>(will create new transport back to start from the closest stop)</sup>
@@ -95,7 +94,7 @@ class ConfigTasks(TaskEnum):
     DELETE_DATABASE = auto()
 
 
-COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Callable[[VirtualClock], Any]] = {
+COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], None]] = {
     # DataRetrivalTasks
     DataRetrivalTasks.SHOW_WAREHOUSES: show_warehouses_task,
     DataRetrivalTasks.SHOW_WAREHOUSE_DETAILS: show_warehouse_details_task,
@@ -117,6 +116,8 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Ca
     DataManipulationTasks.REMOVE_PRODUCT: remove_product_task,
     DataManipulationTasks.REMOVE_WAREHOUSE_CONNECTION: remove_transport_route_task,
     DataManipulationTasks.REMOVE_STOCK: remove_stock_task,
+
+    DataManipulationTasks.EDIT_WAREHOUSE: edit_warehouse_task,
 
     # DebugTasks
     DebugTasks.CHANGE_TIME_SIMULATION_SCALE: change_time_simulation_scale_task,

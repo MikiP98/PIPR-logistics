@@ -190,3 +190,46 @@ def remove_stock_task(database: Database, _: VirtualClock) -> bool:
     else:
         warn("Cancelling the removal of the stock")
         return False
+
+
+def edit_warehouse_task(database: Database, _: VirtualClock) -> None:
+    warehouse_id = ask_for_int("Provide the warehouse ID")
+    choice = -1
+    while choice != 3:
+        choice = ask_for_choice(["Name", "Location", "Capacity", "Exit"], "What do you want to change?")
+        if choice == 0:
+            _change_warehouse_name(database, warehouse_id)
+        elif choice == 1:
+            _change_warehouse_location(database, warehouse_id)
+        elif choice == 2:
+            _change_warehouse_capacity(database, warehouse_id)
+
+
+def _change_warehouse_name(database: Database, warehouse_id: int) -> None:
+    new_name = ask_for_string("Provide the new warehouse name")
+    old_name = database.get_warehouse_name(warehouse_id)
+    confirm = ask_for_bool(f"Confirm the change of the warehouse name from '{old_name}' to '{new_name}'")
+    if confirm:
+        database.change_warehouse_name(warehouse_id, new_name)
+    else:
+        warn("Cancelling the change of the warehouse name")
+
+
+def _change_warehouse_location(database: Database, warehouse_id: int) -> None:
+    new_location = ask_for_string("Provide the new warehouse location")
+    old_location = database.get_warehouse_location(warehouse_id)
+    confirm = ask_for_bool(f"Confirm the change of the warehouse location from '{old_location}' to '{new_location}'")
+    if confirm:
+        database.change_warehouse_location(warehouse_id, new_location)
+    else:
+        warn("Cancelling the change of the warehouse location")
+
+
+def _change_warehouse_capacity(database: Database, warehouse_id: int) -> None:
+    new_capacity = ask_for_int("Provide the new warehouse capacity (cm^3)")
+    old_capacity = database.get_warehouse_capacity(warehouse_id)
+    confirm = ask_for_bool(f"Confirm the change of the warehouse capacity from '{old_capacity}' to '{new_capacity}'")
+    if confirm:
+        database.change_warehouse_capacity(warehouse_id, new_capacity)
+    else:
+        warn("Cancelling the change of the warehouse capacity")
