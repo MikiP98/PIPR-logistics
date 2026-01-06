@@ -226,3 +226,4 @@ def _change_warehouse_capacity(database: Database, warehouse_id: int) -> None:
         database.change_warehouse_capacity(warehouse_id, new_capacity)
     else:
         warn("Cancelling the change of the warehouse capacity")
+    # TODO: Add a trigger SQL check preventing warehouse overflow
