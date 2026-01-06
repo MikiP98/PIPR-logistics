@@ -23,7 +23,7 @@ class Database:
         # Safe connection closing on application exit
         atexit.register(self._conn.close)
 
-    # DataRetrivalTasks
+    # --------- DATA RETRIVAL TASKS ------------------------------------------------------------------------------------
     def get_warehouses(self) -> list[tuple[int, str, str, int, int, int]]:
         return self._cursor.execute(fetch_sql("warehouses.sql")).fetchall()
 
@@ -82,7 +82,7 @@ class Database:
             (warehouse_id,)
         ).fetchall()
 
-    # DataManipulationTasks
+    # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(
             "INSERT INTO warehouses (name, location, capacity_volume_cm)"
