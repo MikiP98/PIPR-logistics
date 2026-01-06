@@ -21,10 +21,13 @@ from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     remove_warehouse_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
+    show_active_transports_task,
+    show_finished_transports_task,
     show_products_task,
+    show_transport_details_task,
     show_warehouse_connections_task,
     show_warehouse_details_task,
-    show_warehouses_task, show_active_transports_task, show_finished_transports_task, show_transport_details_task,
+    show_warehouses_task,
 )
 from logistics.pipeline_loops.console_tasks.debug_and_simulation_tasks import (
     change_time_simulation_scale_task,
