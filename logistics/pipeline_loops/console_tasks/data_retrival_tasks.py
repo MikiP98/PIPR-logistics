@@ -99,3 +99,59 @@ def show_finished_transports_task(database: Database, _: VirtualClock) -> None:
             "TRANSPORT START TIME", "TRANSPORT END TIME", "TOTAL TRANSPORT TIME"
         )
     )
+
+
+def show_transport_details_task(database: Database, _: VirtualClock) -> None:
+    transport_id = ask_for_int("Provide the id of the transport")
+
+    is_active = database.is_transport_active(transport_id)
+
+    if is_active:
+        transport_details, stops, cargo = database.get_active_transport_details(transport_id)
+        eta = None
+        # TODO: eta!
+        print_table(
+            [(*transport_details[:-3], eta)],
+            (
+                "ID",
+                "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
+                "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
+                "START TIME", "ETA"
+            )
+        )
+        # TODO: Percentage progress?
+
+    else:
+        transport_details, stops, cargo = database.get_finished_transport_details(transport_id)
+        print_table(
+            [transport_details],
+            (
+                "ID",
+                "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
+                "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
+                "START TIME", "END TIME"
+            )
+        )
+
+    print_table(
+        stops,
+        (
+            "ROUTE ID",
+            "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
+            "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
+            "START TIME", "END TIME"
+        )
+    )
+    print_table(
+        cargo,
+        (
+            "PRODUCT ID",
+            "PRODUCT NAME",
+            "PRODUCT BARCODE",
+            "PRODUCT COUNT",
+            "TOTAL VOLUME (cm^3)",
+        )
+    )
+
+    # TODO: eta?
+    raise NotImplementedError

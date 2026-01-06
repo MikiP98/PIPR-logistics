@@ -88,6 +88,41 @@ class Database:
     def get_finished_transports(self) -> list[tuple[int, int]]:
         return self._cursor.execute(fetch_sql("get_finished_transports.sql")).fetchall()
 
+    def get_active_transport_details(self, warehouse_id: int) -> tuple[
+        tuple[int, int, str, str, int, str, str, int, int, int, int],
+        list[tuple[int, int, str, str, int, str, str, int, int | None]],
+        list[tuple[int, str, int, int, int]]
+    ]:
+        details = self._cursor.execute(
+            fetch_sql("get_active_transport_details.sql"),
+            (warehouse_id,)
+        ).fetchone()
+        stops, cargo = self._get_common_transport_details(warehouse_id)
+        return details, stops, cargo
+
+    def get_finished_transport_details(self, warehouse_id: int) -> tuple[
+        tuple[int, int, str, str, int, str, str, int, int],
+        list[tuple[int, int, str, str, int, str, str, int, int | None]],
+        list[tuple[int, str, int, int, int]]
+    ]:
+        details = self._cursor.execute(
+            fetch_sql("get_finished_transport_details.sql"),
+            (warehouse_id,)
+        ).fetchone()
+        stops, cargo = self._get_common_transport_details(warehouse_id)
+        return details, stops, cargo
+
+    def _get_common_transport_details(self, warehouse_id: int) -> tuple[
+        list[tuple[int, int, str, str, int, str, str, int, int | None]],
+        list[tuple[int, str, int, int, int]]
+    ]:
+        stops = self._cursor.execute(fetch_sql("get_stops.sql"), (warehouse_id,)).fetchall()
+        cargo = self._cursor.execute(fetch_sql("get_cargo.sql"), (warehouse_id,)).fetchall()
+        return stops, cargo
+
+    def is_transport_active(self, warehouse_id: int) -> bool:
+        return bool(self._cursor.execute(fetch_sql("is_transport_active.sql"), (warehouse_id,)).fetchone())
+
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> bool:
         result: bool = self._cursor.execute(

@@ -24,7 +24,7 @@ from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
     show_products_task,
     show_warehouse_connections_task,
     show_warehouse_details_task,
-    show_warehouses_task, show_active_transports_task, show_finished_transports_task,
+    show_warehouses_task, show_active_transports_task, show_finished_transports_task, show_transport_details_task,
 )
 from logistics.pipeline_loops.console_tasks.debug_and_simulation_tasks import (
     change_time_simulation_scale_task,
@@ -36,14 +36,6 @@ from logistics.pipeline_loops.virtual_clock import VirtualClock
 class TaskEnum(Enum):
     pass
 
-
-# Data retrieval tasks:
-# - show transport details {id}:
-#   - stat timestamp
-#   - destination arrival time estimation
-#   - past stops, predicted stops/next destination
-#   - progress to the next destination
-#   - total progress
 
 class DataRetrivalTasks(TaskEnum):
     SHOW_WAREHOUSES = auto()
@@ -108,6 +100,7 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], Any] | Ca
     DataRetrivalTasks.SHOW_PRODUCTS: show_products_task,
     DataRetrivalTasks.SHOW_ACTIVE_TRANSPORTS: show_active_transports_task,
     DataRetrivalTasks.SHOW_FINISHED_TRANSPORTS: show_finished_transports_task,
+    DataRetrivalTasks.SHOW_TRANSPORT_DETAILS: show_transport_details_task,
 
     # DataManipulationTasks
     DataManipulationTasks.ADD_WAREHOUSE: add_warehouses_task,
