@@ -14,8 +14,11 @@ from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_stock_task,
     add_transport_route_task,
     add_warehouses_task,
-    initialize_transport_task, remove_stock_task, remove_warehouse_task, remove_product_task,
+    initialize_transport_task,
+    remove_product_task,
+    remove_stock_task,
     remove_transport_route_task,
+    remove_warehouse_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
     show_products_task,

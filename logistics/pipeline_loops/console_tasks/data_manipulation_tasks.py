@@ -3,8 +3,15 @@ import math
 from pipeline_loops.virtual_clock import VirtualClock
 
 from logistics.database.database import Database
-from logistics.io_utils import ask_for_bool, ask_for_int, ask_for_string, ask_for_time, warn, ask_for_choice, log, \
-    print_table
+from logistics.io_utils import (
+    ask_for_bool,
+    ask_for_choice,
+    ask_for_int,
+    ask_for_string,
+    ask_for_time,
+    print_table,
+    warn,
+)
 
 
 def add_warehouses_task(database: Database, _: VirtualClock) -> bool:
@@ -154,7 +161,7 @@ def remove_product_task(database: Database, _: VirtualClock) -> None:
         if len(stock) > 0:
             warn(f"Product selected for deletion is located in '{len(stock)}' warehouses")
             print_table(stock, ("WAREHOUSE ID", "COUNT"))
-            confirm = ask_for_bool(f"Confirm the removal of this stock alongside the product")
+            confirm = ask_for_bool("Confirm the removal of this stock alongside the product")
             if confirm:
                 for warehouse_id, _ in stock:
                     database.remove_stock(warehouse_id, product_id, None)
