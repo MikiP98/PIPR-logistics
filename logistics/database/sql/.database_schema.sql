@@ -1,7 +1,7 @@
 PRAGMA journal_mode = WAL;
 PRAGMA foreign_keys = ON; -- Enable FK enforcement
 
--- 1. Warehouses (Implied by your schema, but necessary for FKs)
+-- 1. Warehouses
 CREATE TABLE warehouses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -123,7 +123,7 @@ CREATE TABLE transport_routes (
     transport_id INTEGER NOT NULL,
     source_warehouse_id INTEGER NOT NULL,
     target_warehouse_id INTEGER NOT NULL,
-    start_timestamp INTEGER NOT NULL, -- Store as Unix Epoch
+    start_timestamp INTEGER NOT NULL, -- Store as ~~Unix Epoch~~ minutes from X?
     arrival_timestamp INTEGER,        -- Nullable if not arrived yet
 
     FOREIGN KEY (transport_id) REFERENCES transports(id),
