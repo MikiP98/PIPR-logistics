@@ -105,6 +105,7 @@ def remove_warehouse_task(database: Database, _: VirtualClock) -> None:
     warehouse_id = ask_for_int("Provide the warehouse ID")
     confirm = ask_for_bool(f"Confirm the removal of the warehouse with id '{warehouse_id}'")
     if confirm:
+        # TODO: Move the handling to separate functions
         # Handle existing stock
         stock = database.get_stock(warehouse_id)
         if len(stock) > 0:
