@@ -31,6 +31,9 @@ class VirtualClock:
             return self._virtual_time
 
     def set_scale(self, new_scale: float) -> None:
+        if new_scale < 0:
+            raise ValueError("Time scale must be positive")
+
         # IMPORTANT: Force an update before changing scale,
         # so the time passed SO FAR is calculated with the OLD scale.
         self.get_time()  # This updates virtual_time using the current scale
