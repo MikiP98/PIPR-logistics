@@ -122,6 +122,8 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], None]] = 
     # DebugTasks
     DebugTasks.CHANGE_TIME_SIMULATION_SCALE: change_time_simulation_scale_task,
     DebugTasks.OFFSET_SIMULATION_TIME: offset_simulation_time_task,
+
+    # ConfigTasks
 }
 
 
