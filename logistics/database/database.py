@@ -138,6 +138,15 @@ class Database:
     def get_product_volume(self, product_id: int) -> int:
         return self._cursor.execute("SELECT volume_cm FROM products WHERE id=?", (product_id,)).fetchone()
 
+    def get_warehouse_connection_transportation_time(
+            self, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool
+    ) -> int:
+        return self._cursor.execute(
+            "SELECT transportation_time_minutes FROM connections "
+            "WHERE source_warehouse_id=? AND target_warehouse_id=? AND is_two_way=?",
+            (source_warehouse_id, target_warehouse_id, is_two_way)
+        ).fetchone()
+
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> None:
         self._cursor.execute(
@@ -219,7 +228,7 @@ class Database:
         self._conn.commit()
 
     def remove_warehouse(self, warehouse_id: int) -> None:
-        self._cursor.execute("DELETE FROM warehouses WHERE warehouse_id=?", (warehouse_id,)).fetchone()
+        self._cursor.execute("DELETE FROM warehouses WHERE id=?", (warehouse_id,)).fetchone()
         self._conn.commit()
 
     def remove_product(self, product_id: int) -> None:
@@ -249,7 +258,7 @@ class Database:
         self._conn.commit()
 
     def change_warehouse_capacity(self, warehouse_id: int, new_capacity: int) -> None:
-        self._cursor.execute("UPDATE warehouses SET capacity = ? WHERE id = ?", (new_capacity, warehouse_id))
+        self._cursor.execute("UPDATE warehouses SET capacity_volume_cm = ? WHERE id = ?", (new_capacity, warehouse_id))
         self._conn.commit()
 
     def change_product_name(self, product_id: int, new_name: str) -> None:
@@ -262,3 +271,32 @@ class Database:
     def change_product_volume(self, product_id: int, new_volume: int) -> None:
         self._cursor.execute("UPDATE products SET volume_cm = ? WHERE id = ?", (new_volume, product_id))
         self._conn.commit()
+
+    def change_warehouse_connection_source(
+            self, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool, new_source_warehouse_id: int
+    ) -> None:
+        self._cursor.execute(
+            "UPDATE connections SET source_warehouse_id = ? "
+            "WHERE source_warehouse_id = ? AND target_warehouse_id = ? AND is_two_way=?",
+            (new_source_warehouse_id, source_warehouse_id, target_warehouse_id, is_two_way)
+        )
+        self._conn.commit()
+
+    def change_warehouse_connection_target(
+            self, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool, new_target_warehouse_id: int
+    ) -> None:
+        self._cursor.execute(
+            "UPDATE connections SET target_warehouse_id = ? "
+            "WHERE source_warehouse_id = ? AND target_warehouse_id = ? AND is_two_way=?",
+            (new_target_warehouse_id, source_warehouse_id, target_warehouse_id, is_two_way)
+        )
+        self._conn.commit()
+
+    def change_warehouse_connection_transportation_target(
+            self, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool, new_transportation_time: int
+    ) -> None:
+        self._cursor.execute(
+            "UPDATE connections SET transportation_time_minutes = ? "
+            "WHERE source_warehouse_id = ? AND target_warehouse_id = ? AND is_two_way=?",
+            (new_transportation_time, source_warehouse_id, target_warehouse_id, is_two_way)
+        )

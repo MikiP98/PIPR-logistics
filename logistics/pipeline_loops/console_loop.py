@@ -14,6 +14,7 @@ from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_transport_route_task,
     add_warehouses_task,
     edit_product_task,
+    edit_warehouse_connection_task,
     edit_warehouse_task,
     initialize_transport_task,
     remove_product_task,
@@ -56,7 +57,6 @@ class DataRetrivalTasks(TaskEnum):
 
 
 # Data manipulation tasks:
-# - edit route
 # - cancel transport <sup>(will create new transport back to start from the closest stop)</sup>
 
 class DataManipulationTasks(TaskEnum):
@@ -119,6 +119,7 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], None]] = 
 
     DataManipulationTasks.EDIT_WAREHOUSE: edit_warehouse_task,
     DataManipulationTasks.EDIT_PRODUCT: edit_product_task,
+    DataManipulationTasks.EDIT_WAREHOUSE_CONNECTION: edit_warehouse_connection_task,
 
     # DebugTasks
     DebugTasks.CHANGE_TIME_SIMULATION_SCALE: change_time_simulation_scale_task,
