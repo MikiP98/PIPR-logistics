@@ -30,7 +30,7 @@ def ask_for_string(question: str) -> str:
 
 
 def ask_for_int(
-        question: str, *, minimum: int | None = 0, maximum: int | None = None, allow_none: bool = False
+        question: str, *, minimum: int | None = 0, maximum: int | None = 2**63-1, allow_none: bool = False
 ) -> int | None:
     if minimum is not None and maximum is not None and minimum >= maximum:
         raise ValueError("minimum has to be smaller than maximum")

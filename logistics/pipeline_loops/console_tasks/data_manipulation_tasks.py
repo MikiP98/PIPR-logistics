@@ -19,7 +19,7 @@ def add_warehouses_task(database: Database, _: VirtualClock) -> None:
     print()
     location = ask_for_string("Provide the location of the warehouse")
     print()
-    capacity = ask_for_int("Provide the capacity of the warehouse (in cm^3)", maximum=9223372036854775807)
+    capacity = ask_for_int("Provide the capacity of the warehouse (in cm^3)")
     confirm = ask_for_bool(
         f"Confirm the addition of warehouse: name='{name}', location='{location}', capacity={capacity}'",
     )
