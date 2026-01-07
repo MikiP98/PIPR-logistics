@@ -12,7 +12,7 @@ from logistics.io_utils import (
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_product_task,
     add_stock_task,
-    add_transport_route_task,
+    add_warehouse_connection_task,
     add_warehouses_task,
     cancel_transport_task,
     edit_product_task,
@@ -116,7 +116,7 @@ COMMAND_HANDLER_MAP: dict[TaskEnum, Callable[[Database, VirtualClock], None]] = 
     DataManipulationTasks.ADD_WAREHOUSE: add_warehouses_task,
     DataManipulationTasks.ADD_PRODUCT: add_product_task,
     DataManipulationTasks.ADD_STOCK: add_stock_task,
-    DataManipulationTasks.ADD_WAREHOUSE_CONNECTION: add_transport_route_task,
+    DataManipulationTasks.ADD_WAREHOUSE_CONNECTION: add_warehouse_connection_task,
 
     DataManipulationTasks.INITIALIZE_TRANSPORT: initialize_transport_task,
 

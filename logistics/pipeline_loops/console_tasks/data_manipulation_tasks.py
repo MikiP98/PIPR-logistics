@@ -56,7 +56,7 @@ def add_stock_task(database: Database, _: VirtualClock) -> None:
         warn("Cancelling the addition of the stock")
 
 
-def add_transport_route_task(database: Database, _: VirtualClock) -> None:
+def add_warehouse_connection_task(database: Database, _: VirtualClock) -> None:
     source_warehouse_id = ask_for_int("Provide the source warehouse ID")
     target_warehouse_id = ask_for_int("Provide the target warehouse ID")
     weeks, days, hours, minutes, seconds = ask_for_time("Provide the average travel time")
@@ -68,7 +68,9 @@ def add_transport_route_task(database: Database, _: VirtualClock) -> None:
         f"{"and" if is_two_way else "to"} warehouse '{target_warehouse_id}' taking '{minutes}' minutes"
     )
     if confirm:
-        database.add_transport_route(source_warehouse_id, target_warehouse_id, minutes, is_two_way)
+        database.add_transport_route(source_warehouse_id, target_warehouse_id, minutes)
+        if is_two_way:
+            database.add_transport_route(target_warehouse_id, source_warehouse_id, minutes)
     else:
         warn("Cancelling the addition of the transport route/warehouse connection")
 
@@ -168,7 +170,7 @@ def remove_transport_route_task(database: Database, _: VirtualClock) -> None:
     source_warehouse_id = ask_for_int("Provide the source warehouse ID")
     target_warehouse_id = ask_for_int("Provide the target warehouse ID")
     is_two_way = ask_for_bool("Is the route a two-way route?")
-    database.remove_transport_route(source_warehouse_id, target_warehouse_id, is_two_way)
+    database.remove_warehouse_connection(source_warehouse_id, target_warehouse_id, is_two_way)
 
 
 def remove_stock_task(database: Database, _: VirtualClock) -> None:
@@ -263,88 +265,65 @@ def _change_product_volume(database: Database, product_id: int) -> None:
 
 
 def edit_warehouse_connection_task(database: Database, _: VirtualClock) -> None:
-    source_warehouse_id = ask_for_int("Provide the source warehouse ID")
-    target_warehouse_id = ask_for_int("Provide the target warehouse ID")
-    is_two_way = ask_for_bool("Is the connection a two-way one?")
+    connection_id = ask_for_int("Provide the connection ID")
 
     choice = -1
     while choice < 4:
         choice = ask_for_choice(
-            ["Source warehouse ID", "Target Warehouse ID", "Transportation time", "Is two-way", "Exit"],
+            ["Source warehouse ID", "Target Warehouse ID", "Transportation time", "Exit"],
             "What do you want to change?"
         )
         if choice == 0:
-            _change_warehouse_connection_source(database, source_warehouse_id, target_warehouse_id, is_two_way)
+            _change_warehouse_connection_source(database, connection_id)
         elif choice == 1:
-            _change_warehouse_connection_target(database, source_warehouse_id, target_warehouse_id, is_two_way)
+            _change_warehouse_connection_target(database, connection_id)
         elif choice == 2:
-            _change_warehouse_connection_transportation_time(
-                database, source_warehouse_id, target_warehouse_id, is_two_way
-            )
-        elif choice == 3:
-            _change_warehouse_connection_is_two_way(database, source_warehouse_id, target_warehouse_id, is_two_way)
+            _change_warehouse_connection_transportation_time(database, connection_id)
 
 
 def _change_warehouse_connection_source(
-        database: Database, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool
+        database: Database, connection_id: int
 ) -> None:
     new_source_warehouse_id = ask_for_int("Provide the new source warehouse ID")
+    old_source_warehouse_if = database.get_warehouse_connection_source_warehouse_id(connection_id)
     confirm = ask_for_bool(
-        f"Confirm the change of the source warehouse ID from '{source_warehouse_id}' to '{new_source_warehouse_id}'"
+        f"Confirm the change of the source warehouse ID from '{old_source_warehouse_if}' to '{new_source_warehouse_id}'"
     )
     if confirm:
-        database.change_warehouse_connection_source(
-            source_warehouse_id, target_warehouse_id, is_two_way, new_source_warehouse_id
-        )
+        database.change_warehouse_connection_source(connection_id, new_source_warehouse_id)
     else:
         warn("Cancelling the change of the source warehouse ID")
 
 
 def _change_warehouse_connection_target(
-        database: Database, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool
+        database: Database, connection_id: int
 ) -> None:
     new_target_warehouse_id = ask_for_int("Provide the new target warehouse ID")
+    old_target_warehouse_id = database.get_warehouse_connection_target_warehouse_id(connection_id)
     confirm = ask_for_bool(
-        f"Confirm the change of the target warehouse ID from '{target_warehouse_id}' to '{new_target_warehouse_id}'"
+        f"Confirm the change of the target warehouse ID from '{old_target_warehouse_id}' to '{new_target_warehouse_id}'"
     )
     if confirm:
-        database.change_warehouse_connection_target(
-            source_warehouse_id, target_warehouse_id, is_two_way, new_target_warehouse_id
-        )
+        database.change_warehouse_connection_target(connection_id, new_target_warehouse_id)
     else:
         warn("Cancelling the change of the target warehouse ID")
 
 
 def _change_warehouse_connection_transportation_time(
-        database: Database, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool
+        database: Database, connection_id: int
 ) -> None:
     weeks, days, hours, minutes, seconds = ask_for_time("Provide the new transportation time")
     new_transportation_time = math.ceil(((((weeks * 7 + days) * 24 + hours) * 60 + minutes) * 60 + seconds) / 60)
-    old_transportation_time = database.get_warehouse_connection_transportation_time(
-        source_warehouse_id, target_warehouse_id, is_two_way
-    )
+    old_transportation_time = database.get_warehouse_connection_transportation_time(connection_id)
     confirm = ask_for_bool(
-        f"Confirm the change of the transportation time from '{old_transportation_time}' to '{new_transportation_time}'"
+        "Confirm the change of the transportation time "
+        f"from '{old_transportation_time} min' "
+        f"to '{new_transportation_time} min'"
     )
     if confirm:
-        database.change_warehouse_connection_transportation_target(
-            source_warehouse_id, target_warehouse_id, is_two_way, new_transportation_time
-        )
+        database.change_warehouse_connection_transportation_target(connection_id, new_transportation_time)
     else:
         warn("Cancelling the change of the transportation time")
-
-
-def _change_warehouse_connection_is_two_way(
-    database: Database, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool
-) -> None:
-    new_is_two_way = ask_for_bool("Provide the new is-two-way")
-    confirm = ask_for_bool(f"Confirm the change of the is-two-way from '{is_two_way}' to '{new_is_two_way}'")
-    if confirm:
-        database.change_warehouse_connection_is_two_way(
-            source_warehouse_id, target_warehouse_id, is_two_way, new_is_two_way
-        )
-    else:
-        warn("Cancelling the change of the is-two-way")
 
 
 def cancel_transport_task(database: Database) -> None:

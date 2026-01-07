@@ -61,8 +61,7 @@ def show_warehouse_connections_task(database: Database, _: VirtualClock) -> None
             "ID",
             "SOURCE WAREHOUSE ID", "SOURCE WAREHOUSE NAME", "SOURCE WAREHOUSE LOCATION",
             "TARGET WAREHOUSE ID", "TARGET WAREHOUSE NAME", "TARGET WAREHOUSE LOCATION",
-            "TRANSPORTATION TIME",
-            "IS TWO WAY"
+            "TRANSPORTATION TIME"
         )
     )
 
