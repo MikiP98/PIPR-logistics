@@ -303,3 +303,14 @@ class Database:
             "WHERE source_warehouse_id = ? AND target_warehouse_id = ? AND is_two_way=?",
             (new_transportation_time, source_warehouse_id, target_warehouse_id, is_two_way)
         )
+        self._conn.commit()
+
+    def change_warehouse_connection_is_two_way(
+            self, source_warehouse_id: int, target_warehouse_id: int, is_two_way: bool, new_is_two_way: bool
+    ) -> None:
+        self._cursor.execute(
+            "UPDATE connections SET is_two_way = ? "
+            "WHERE source_warehouse_id = ? AND target_warehouse_id = ? AND is_two_way=?",
+            (source_warehouse_id, target_warehouse_id, is_two_way, new_is_two_way)
+        )
+        self._conn.commit()
