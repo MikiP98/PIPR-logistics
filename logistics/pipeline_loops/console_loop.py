@@ -5,14 +5,16 @@ from pathlib import Path
 from logistics.database.database import Database
 from logistics.io_utils import (
     ask_for_choice,
+    error,
     get_input,
-    log, error,
+    log,
 )
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_product_task,
     add_stock_task,
     add_transport_route_task,
     add_warehouses_task,
+    cancel_transport_task,
     edit_product_task,
     edit_warehouse_connection_task,
     edit_warehouse_task,
@@ -20,7 +22,7 @@ from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     remove_product_task,
     remove_stock_task,
     remove_transport_route_task,
-    remove_warehouse_task, cancel_transport_task,
+    remove_warehouse_task,
 )
 from logistics.pipeline_loops.console_tasks.data_retrival_tasks import (
     show_active_transports_task,
