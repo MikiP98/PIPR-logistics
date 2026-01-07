@@ -4,6 +4,7 @@ from typing import Any
 _RED = "\033[91m"
 _YELLOW = "\033[93m"
 
+_BOLD = "\033[1m"
 _ITALIC = "\033[3m"
 
 _RESET = "\033[0m"
@@ -206,7 +207,7 @@ def _ask_simple_choice(options: list[str], question: str, headers: bool) -> int:
 
 
 def _ask_column_choice(option_groups: list[list[str]], question: str, use_headers: bool) -> int:
-    divider: str = "|"
+    divider: str = f"{_BOLD}|{_RESET}"
     padding: int = 2
 
     if use_headers:
@@ -280,8 +281,7 @@ def _ask_column_choice(option_groups: list[list[str]], question: str, use_header
                 cell = h_text.ljust(width)
 
                 # Format the underline (using dashes matching column width)
-                # You can change "-" to "=" if you prefer a double line
-                div_line = ("-" * width)
+                div_line = f"{_BOLD}{'-' * width}{_RESET}"
 
                 if c < len(headers) - 1:
                     header_parts.append(cell + sep_str)
@@ -362,7 +362,7 @@ def print_table(values: list[Sequence[Any]], headers: tuple[str, ...] | None = N
 
     if headers is not None:
         rows.append(headers)
-        rows.append(tuple('-' * max_length for max_length in column_max_lengths))
+        rows.append(tuple(f"{_BOLD}{'-' * max_length}{_RESET}" for max_length in column_max_lengths))
 
     rows.extend(string_rows)
 
@@ -389,14 +389,14 @@ def _print_empty_table(headers: tuple[str, ...] | None) -> None:
     if headers is None:
         warn("Empty table")
     else:
-        log("  |  ".join(headers))
-        log("  |  ".join('-' * len(h) for h in headers))
+        log(f"{_BOLD}  |  {_RESET}".join(headers))
+        log(f"{_BOLD}  |  {_RESET}".join(f"{_BOLD}{'-' * len(h)}{_RESET}" for h in headers))
 
 
 def _get_table_row(row: Sequence[str], column_max_lengths: Sequence[int]) -> str:
     line = [row[0], ' ' * (column_max_lengths[0] - len(row[0]))]
     for i in range(1, len(row)):
-        line.append('  |  ')
+        line.append(f"{_BOLD}  |  {_RESET}")
         line.append(row[i])
         line.append(' ' * (column_max_lengths[i] - len(row[i])))
     return ''.join(line)
