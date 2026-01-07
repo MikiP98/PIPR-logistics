@@ -1,5 +1,6 @@
 import atexit
 import sqlite3
+from datetime import UTC, datetime
 from importlib import resources
 from pathlib import Path
 
@@ -149,6 +150,31 @@ class Database:
 
     def get_transport_source(self, transport_id: int) -> int:
         return self._cursor.execute("SELECT target_warehouse_id FROM transports WHERE id=?", (transport_id,)).fetchone()
+
+    def get_active_transports_event(self) -> list[tuple[int, int, int, int, int, int]]:
+        return self._cursor.execute(fetch_sql("get_active_transports_event.sql")).fetchall()
+
+    def get_cargo(self, transport_id: int) -> list[tuple[int, int]]:
+        return self._cursor.execute(
+            "SELECT product_id, count FROM transported_stock WHERE transport_id=?",
+            (transport_id,)
+        ).fetchall()
+
+    def get_routing_graph(self) -> list[tuple[int, int, int, int]]:
+        """
+        Returns all valid connections for pathfinding.
+        Format: (connection_id, source_id, target_id, minutes)
+        """
+        return self._cursor.execute(
+            "SELECT id, source_warehouse_id, target_warehouse_id, transportation_time_minutes FROM connections"
+        ).fetchall()
+
+    def add_next_transport_leg(self, transport_id: int, connection_id: int, start_time: int) -> None:
+        self._cursor.execute(
+            "INSERT INTO transport_routes (transport_id, connection_id, start_timestamp) VALUES (?, ?, ?)",
+            (transport_id, connection_id, start_time)
+        )
+        self._conn.commit()
 
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> None:
@@ -314,3 +340,38 @@ class Database:
             (source_warehouse_id, target_warehouse_id, is_two_way, new_is_two_way)
         )
         self._conn.commit()
+
+    def change_transport_route_arrival(self, transport_route_id: int, arrival_time_minutes: int) -> None:
+        self._cursor.execute(
+            "UPDATE transport_routes SET arrival_timestamp = ? WHERE id = ?",
+            (arrival_time_minutes, transport_route_id)
+        )
+        self._conn.commit()
+
+    def upsert_cargo(self, warehouse_id: int, cargo: list[tuple[int, int]]) -> None:
+        self._cursor.executemany(
+            f"""
+            INSERT INTO stock (warehouse_id, product_id, count) 
+            VALUES ({warehouse_id}, ?, ?)
+            ON CONFLICT(product_id, warehouse_id) 
+            DO UPDATE SET count = count + excluded.count
+            """,
+            cargo
+        )
+        self._conn.commit()
+
+    # --------- TIME HELPERS -------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def to_db_time(dt: datetime | None) -> int | None:
+        """Converts datetime to Unix Minutes (4 bytes in DB)."""
+        if dt is None:
+            return None
+        return int(dt.timestamp() // 60)
+
+    @staticmethod
+    def from_db_time(db_minutes: int | None) -> datetime | None:
+        """Converts Unix Minutes back to datetime."""
+        if db_minutes is None:
+            return None
+        return datetime.fromtimestamp(db_minutes * 60, tz=UTC)
