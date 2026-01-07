@@ -147,6 +147,9 @@ class Database:
             (source_warehouse_id, target_warehouse_id, is_two_way)
         ).fetchone()
 
+    def get_transport_source(self, transport_id: int) -> int:
+        return self._cursor.execute("SELECT target_warehouse_id FROM transports WHERE id=?", (transport_id,)).fetchone()
+
     # --------- DATA MANIPULATION TASKS --------------------------------------------------------------------------------
     def add_warehouse(self, name: str, location: str, capacity: int) -> None:
         self._cursor.execute(

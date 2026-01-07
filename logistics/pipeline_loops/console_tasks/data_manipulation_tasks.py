@@ -345,3 +345,11 @@ def _change_warehouse_connection_is_two_way(
         )
     else:
         warn("Cancelling the change of the is-two-way")
+
+
+def cancel_transport_task(database: Database) -> None:
+    transport_id = ask_for_int("Provide the transport ID to cancel")
+    confirm = ask_for_bool(f"Confirm the cancellation of transport '{transport_id}'")
+    source_warehouse_id = database.get_transport_source(transport_id)
+    if confirm:
+        database.reroute_transport(transport_id, source_warehouse_id)
