@@ -6,7 +6,7 @@ from logistics.database.database import Database
 from logistics.io_utils import (
     ask_for_choice,
     get_input,
-    log,
+    log, error,
 )
 from logistics.pipeline_loops.console_tasks.data_manipulation_tasks import (
     add_product_task,
@@ -82,12 +82,21 @@ class DebugTasks(TaskEnum):
 
 # Config tasks:
 # - edit db connection config
+# - export config
+# - import config
 # - delete config
+# - export database
+# - import database
 # - delete database
 
 class ConfigTasks(TaskEnum):
     CHANGE_CONFIG = auto()
+    EXPORT_CONFIG = auto()
+    IMPORT_CONFIG = auto()
     DELETE_CONFIG = auto()
+
+    EXPORT_DATABASE = auto()
+    IMPORT_DATABASE = auto()
     DELETE_DATABASE = auto()
 
 
@@ -147,9 +156,12 @@ def run_console_loop(db_path: Path, clock: VirtualClock) -> None:
         if user_choice < len(enum_indexer):
             task = enum_indexer[user_choice]
             log(f"\nExecuting '{task.name}' task...\n")
-            handler = COMMAND_HANDLER_MAP[task]
-            handler(database, clock)
-            get_input(message="\nPress Enter to continue...", end="")
+            handler = COMMAND_HANDLER_MAP.get(task)
+            if handler is not None:
+                handler(database, clock)
+                get_input(message="\nPress Enter to continue...", end="")
+            else:
+                error("SELECTED TASK IS NOT YET IMPLEMENTED")
 
     log("\nClosing the app...")
 
